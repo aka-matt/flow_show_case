@@ -1,10 +1,16 @@
+import { createRoot, type Root } from 'react-dom/client';
+import React from 'react';
 import { EVENT_FLOW_ERROR, FlowErrorDetail, emitCustomEvent } from './events.js';
+import { ArchitectureFlowApp } from '../react/ArchitectureFlowApp.js';
+import { COMBINED_CSS } from '../styles/combined-styles.js';
 
 const DEFAULT_HEIGHT = '600px';
 const DEFAULT_THEME = 'system';
 const DEFAULT_PALETTE = 'blue';
 
 export class ArchitectureFlowElement extends HTMLElement {
+  private _root: Root | null = null;
+  private _resizeObserver: ResizeObserver | null = null;
   private _data: unknown = null;
   private _theme: 'light' | 'dark' | 'system' = DEFAULT_THEME as 'light' | 'dark' | 'system';
   private _palette: string = DEFAULT_PALETTE;
@@ -106,7 +112,10 @@ export class ArchitectureFlowElement extends HTMLElement {
   }
 
   disconnectedCallback(): void {
-    // Cleanup implemented in Phase 3 (fetch) and Phase 6 (full)
+    this._resizeObserver?.disconnect();
+    this._resizeObserver = null;
+    this._root?.unmount();
+    this._root = null;
   }
 
   attributeChangedCallback(name: string, oldVal: string | null, newVal: string | null): void {
@@ -137,8 +146,9 @@ export class ArchitectureFlowElement extends HTMLElement {
       }
       .af-host {
         width: 100%;
-        height: 100%;
+        height: var(--af-height, 600px);
       }
+      ${COMBINED_CSS}
     `;
     this.shadowRoot!.appendChild(style);
   }
@@ -148,7 +158,26 @@ export class ArchitectureFlowElement extends HTMLElement {
     container.className = 'af-host';
     container.setAttribute('part', 'container');
     this.shadowRoot!.appendChild(container);
-    // React mount point — actual React Root created in Phase 2
+
+    this._root = createRoot(container);
+    this._renderReact();
+  }
+
+  private _renderReact(): void {
+    if (!this._root) return;
+    this._root.render(
+      React.createElement(ArchitectureFlowApp, {
+        nodes: [],
+        edges: [],
+        options: {
+          interactive: this._interactive,
+          fitView: this._fitView,
+          showControls: this._showControls,
+          showBackground: this._showBackground,
+          showMiniMap: this._showMiniMap,
+        },
+      })
+    );
   }
 
   private _applyPendingProperties(): void {
@@ -162,7 +191,10 @@ export class ArchitectureFlowElement extends HTMLElement {
   }
 
   private _setupResizeObserver(): void {
-    // Implemented in Phase 2
+    this._resizeObserver = new ResizeObserver(() => {
+      // Trigger React Flow re-compute — implemented in Phase 3
+    });
+    this._resizeObserver.observe(this);
   }
 
   private _updateHeight(): void {
