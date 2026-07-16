@@ -15,9 +15,15 @@ export default defineConfig({
     rollupOptions: {
       external: [],
     },
+    define: {
+      'process.env.NODE_ENV': '"production"',
+    },
   },
   server: {
     port: 5173,
     host: '0.0.0.0',
+    define: {
+      'process.env.NODE_ENV': '"development"',
+    },
   },
 });
