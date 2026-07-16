@@ -1,5 +1,12 @@
 import React, { memo } from 'react';
-import { type EdgeProps, BaseEdge, EdgeLabelRenderer, getBezierPath } from '@xyflow/react';
+import {
+  type EdgeProps,
+  BaseEdge,
+  EdgeLabelRenderer,
+  getSmoothStepPath,
+  getBezierPath,
+  getStraightPath,
+} from '@xyflow/react';
 
 const STATUS_COLORS: Record<string, string> = {
   default: 'var(--af-color-edge)',
@@ -20,15 +27,26 @@ export const ArchitectureEdge = memo(function ArchitectureEdge({
   data,
   selected,
   animated,
+  type,
 }: EdgeProps) {
-  const [edgePath, labelX, labelY] = getBezierPath({
+  // Prefer smoothstep (schema default); support bezier/straight for explicit types
+  const pathArgs = {
     sourceX,
     sourceY,
     sourcePosition,
     targetX,
     targetY,
     targetPosition,
-  });
+  };
+  const [edgePath, labelX, labelY] =
+    type === 'bezier'
+      ? getBezierPath(pathArgs)
+      : type === 'straight'
+        ? (() => {
+            const [p, x, y] = getStraightPath(pathArgs);
+            return [p, x, y] as const;
+          })()
+        : getSmoothStepPath(pathArgs);
 
   const status = String(data?.['status'] ?? 'default');
   const color = selected ? 'var(--af-color-edge-active)' : STATUS_COLORS[status];

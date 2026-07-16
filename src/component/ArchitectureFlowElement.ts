@@ -46,6 +46,12 @@ export class ArchitectureFlowElement extends HTMLElement {
   private _isLoading: boolean = false;
   private _appState: 'loading' | 'loaded' | 'error' | 'empty' = 'loaded';
   private _errorMessage: string = '';
+  // Cached last graph so attribute/property re-renders don't wipe nodes/edges
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private _lastNodes: any[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private _lastEdges: any[] = [];
+  private _lastDocOptions: unknown = undefined;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _onViewportChange = debounce((x: number, y: number, zoom: number) => {
@@ -212,10 +218,35 @@ export class ArchitectureFlowElement extends HTMLElement {
     this._injectStyles();
     this._mountReact();
     this._applyPendingProperties();
+    this._syncBooleanAttributes();
     this._setupResizeObserver();
     this._setupSystemThemeListener();
     this._updateHeight();
-    this._loadData();
+    // Sync theme/palette from attributes if present
+    const themeAttr = this.getAttribute('theme');
+    if (themeAttr) {
+      this._theme = themeAttr as 'light' | 'dark' | 'system';
+    }
+    const paletteAttr = this.getAttribute('palette');
+    if (paletteAttr) {
+      this._palette = paletteAttr;
+    }
+    this._resolveAndApplyTheme();
+    void this._loadData();
+  }
+
+  /** Read attributes that may already be present at upgrade time. */
+  private _syncBooleanAttributes(): void {
+    // interactive: default false; presence = true
+    this._interactive = this.hasAttribute('interactive');
+    // fit-view: default true; presence = true (cannot express false via boolean attr)
+    this._fitView = true;
+    // show-controls: default true
+    this._showControls = true;
+    // show-background: default true
+    this._showBackground = true;
+    // show-minimap: default false; presence = true
+    this._showMiniMap = this.hasAttribute('show-minimap');
   }
 
   disconnectedCallback(): void {
@@ -233,8 +264,13 @@ export class ArchitectureFlowElement extends HTMLElement {
     if (oldVal === newVal) return;
     switch (name) {
       case 'src':
-        this._currentSrc = newVal;
-        this._loadData();
+        // Clear so the new src is always fetched. attributeChangedCallback can
+        // run before connectedCallback (no React root yet) — only load when mounted.
+        this._data = null;
+        this._currentSrc = null;
+        if (this._root) {
+          void this._loadData();
+        }
         break;
       case 'theme':
         this._theme = (newVal as 'light' | 'dark' | 'system') ?? 'system';
@@ -290,7 +326,7 @@ export class ArchitectureFlowElement extends HTMLElement {
   }
 
   private async _loadData(): Promise<void> {
-    // Priority 1: data property
+    // Priority 1: data property (already set)
     if (this._data) {
       this._renderGraph(this._data);
       return;
@@ -298,9 +334,14 @@ export class ArchitectureFlowElement extends HTMLElement {
 
     // Priority 2: src attribute
     const src = this.getAttribute('src');
-    if (src && src !== this._currentSrc) {
-      this._currentSrc = src;
-      await this._loadFromSrc(src);
+    if (src) {
+      // Always load when src is present and not already loaded for this exact URL.
+      // _currentSrc is set only after a successful load starts; it is cleared on
+      // src attribute change and on reload().
+      if (src !== this._currentSrc) {
+        this._currentSrc = src;
+        await this._loadFromSrc(src);
+      }
       return;
     }
 
@@ -320,6 +361,8 @@ export class ArchitectureFlowElement extends HTMLElement {
     this._abortRef = createAbortController();
     this._setLoading(true);
     this._setAppState('loading');
+    // Show loading UI immediately
+    this._renderReact();
 
     emitCustomEvent(this, EVENT_FLOW_LOADING, { src });
 
@@ -330,6 +373,8 @@ export class ArchitectureFlowElement extends HTMLElement {
       emitCustomEvent(this, EVENT_FLOW_LOADED, { source: 'src', data });
       this._setAppState('loaded');
     } catch (err) {
+      // Clear _currentSrc so a later reload/retry can re-fetch this URL
+      this._currentSrc = null;
       const message = err instanceof Error ? err.message : String(err);
       emitCustomEvent(this, EVENT_FLOW_ERROR, {
         code: 'FETCH_ERROR',
@@ -384,24 +429,31 @@ export class ArchitectureFlowElement extends HTMLElement {
 
   private _renderGraph(doc: ArchitectureDocument): void {
     const graph = normalize(doc);
+    this._lastNodes = graph.nodes;
+    this._lastEdges = graph.edges;
+    this._lastDocOptions = doc.options;
     this._setAppState('loaded');
-    this._renderReact(graph.nodes, graph.edges, doc.options);
+    this._renderReact();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private _renderReact(nodes?: any[], edges?: any[], options?: unknown): void {
+  /**
+   * Re-render React tree. Uses cached last graph so attribute/property toggles
+   * (interactive, fitView, theme, etc.) never wipe an already-loaded diagram.
+   */
+  private _renderReact(): void {
     if (!this._root) return;
     this._root.render(
       React.createElement(ArchitectureFlowApp, {
-        nodes: nodes ?? [],
-        edges: edges ?? [],
+        nodes: this._lastNodes,
+        edges: this._lastEdges,
         options: {
+          // Document options first; host attributes/properties win
+          ...(this._lastDocOptions as Record<string, unknown> | undefined),
           interactive: this._interactive,
           fitView: this._fitView,
           showControls: this._showControls,
           showBackground: this._showBackground,
           showMiniMap: this._showMiniMap,
-          ...(options as Record<string, unknown>),
         },
         state: this._appState,
         errorMessage: this._errorMessage,
@@ -425,13 +477,19 @@ export class ArchitectureFlowElement extends HTMLElement {
   }
 
   private _renderEmpty(): void {
+    this._lastNodes = [];
+    this._lastEdges = [];
+    this._lastDocOptions = undefined;
     this._setAppState('empty');
-    this._renderReact([], []);
+    this._renderReact();
   }
 
   private _renderError(_message: string): void {
+    this._lastNodes = [];
+    this._lastEdges = [];
+    this._lastDocOptions = undefined;
     this._setAppState('error');
-    this._renderReact([], []);
+    this._renderReact();
   }
 
   private _setLoading(val: boolean): void {
@@ -538,7 +596,7 @@ export class ArchitectureFlowElement extends HTMLElement {
     container.setAttribute('part', 'container');
     this.shadowRoot!.appendChild(container);
     this._root = createRoot(container);
-    this._renderReact([], []);
+    this._renderReact();
   }
 
   private _applyPendingProperties(): void {

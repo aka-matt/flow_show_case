@@ -1,12 +1,16 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import {
   ReactFlow,
+  ReactFlowProvider,
   Background,
   Controls,
   MiniMap,
   BackgroundVariant,
+  useNodesState,
+  useEdgesState,
   type Node,
   type Edge,
+  type OnInit,
   type ReactFlowProps,
 } from '@xyflow/react';
 import { nodeTypes } from '../nodes/nodeTypes.js';
@@ -22,20 +26,16 @@ interface FlowCanvasProps {
     showBackground?: boolean;
     showMiniMap?: boolean;
   };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onNodeClick?: (event: MouseEvent, node: Node) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onEdgeClick?: (event: MouseEvent, edge: Edge) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onMoveEnd?: (event: MouseEvent, viewport: { x: number; y: number; zoom: number }) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onInit?: (instance: unknown) => void;
   containerRef?: React.RefObject<HTMLDivElement | null>;
 }
 
-export function FlowCanvas({
-  nodes,
-  edges,
+function FlowCanvasInner({
+  nodes: initialNodes,
+  edges: initialEdges,
   options,
   onNodeClick,
   onEdgeClick,
@@ -51,6 +51,18 @@ export function FlowCanvas({
     showMiniMap = false,
   } = options ?? {};
 
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  // Sync external node/edge updates into React Flow state
+  useEffect(() => {
+    setNodes(initialNodes);
+  }, [initialNodes, setNodes]);
+
+  useEffect(() => {
+    setEdges(initialEdges);
+  }, [initialEdges, setEdges]);
+
   const defaultEdgeOptions = useMemo(
     () => ({
       type: 'smoothstep',
@@ -59,49 +71,68 @@ export function FlowCanvas({
     [],
   );
 
-  // Build ReactFlow props conditionally to satisfy exactOptionalPropertyTypes
+  const handleInit: OnInit = useCallback(
+    (instance) => {
+      if (containerRef?.current) {
+        (containerRef.current as unknown as { _rfInstance?: unknown })._rfInstance = instance;
+      }
+      onInit?.(instance);
+    },
+    [containerRef, onInit],
+  );
+
+  // Build props carefully for exactOptionalPropertyTypes — never pass undefined
   const rfProps: ReactFlowProps = {
     nodes,
     edges,
+    onNodesChange,
+    onEdgesChange,
     nodeTypes,
     edgeTypes,
     defaultEdgeOptions,
     fitView,
     nodesDraggable: interactive,
-    nodesConnectable: interactive,
+    nodesConnectable: false,
     elementsSelectable: interactive,
-    panOnDrag: interactive,
+    panOnDrag: true,
     zoomOnScroll: true,
     fitViewOptions: { padding: 0.2 },
     minZoom: 0.1,
     maxZoom: 2,
+    proOptions: { hideAttribution: true },
+    onInit: handleInit,
+    style: { width: '100%', height: '100%' },
   };
 
   if (onNodeClick) {
-    (rfProps as Record<string, unknown>).onNodeClick =
-      onNodeClick as unknown as ReactFlowProps['onNodeClick'];
+    rfProps.onNodeClick = (event, node) => onNodeClick(event.nativeEvent as MouseEvent, node);
   }
   if (onEdgeClick) {
-    (rfProps as Record<string, unknown>).onEdgeClick =
-      onEdgeClick as unknown as ReactFlowProps['onEdgeClick'];
+    rfProps.onEdgeClick = (event, edge) => onEdgeClick(event.nativeEvent as MouseEvent, edge);
   }
   if (onMoveEnd) {
-    (rfProps as Record<string, unknown>).onMoveEnd =
-      onMoveEnd as unknown as ReactFlowProps['onMoveEnd'];
+    rfProps.onMoveEnd = (event, viewport) => {
+      const native =
+        (event as unknown as { nativeEvent?: MouseEvent })?.nativeEvent ?? (event as MouseEvent);
+      onMoveEnd(native, viewport);
+    };
   }
 
-  const handleInit = (instance: unknown): void => {
-    if (containerRef?.current) {
-      (containerRef.current as unknown as { _rfInstance?: unknown })._rfInstance = instance;
-    }
-    onInit?.(instance);
-  };
-
   return (
-    <ReactFlow {...rfProps} onInit={handleInit}>
+    <ReactFlow {...rfProps}>
       {showBackground && <Background variant={BackgroundVariant.Dots} gap={20} size={1} />}
       {showControls && <Controls />}
       {showMiniMap && <MiniMap />}
     </ReactFlow>
+  );
+}
+
+export function FlowCanvas(props: FlowCanvasProps): React.ReactElement {
+  return (
+    <ReactFlowProvider>
+      <div style={{ width: '100%', height: '100%' }}>
+        <FlowCanvasInner {...props} />
+      </div>
+    </ReactFlowProvider>
   );
 }

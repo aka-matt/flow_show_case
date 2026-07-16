@@ -1,4 +1,5 @@
-// React Flow base CSS — imported as inline string for Shadow DOM injection
+// React Flow base CSS + component CSS — imported as inline strings for Shadow DOM injection
 import reactFlowCss from '@xyflow/react/dist/style.css?inline';
+import componentCss from '../theme/component.css?inline';
 
-export const COMBINED_CSS = reactFlowCss;
+export const COMBINED_CSS = `${reactFlowCss}\n${componentCss}`;

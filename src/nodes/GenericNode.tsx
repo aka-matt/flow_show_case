@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
-import { type NodeProps, Handle, Position } from '@xyflow/react';
+import { type NodeProps } from '@xyflow/react';
+import { PortHandles, type PortDef } from './PortHandles.js';
 
 const STATUS_COLORS: Record<string, string> = {
   default: 'var(--af-color-primary)',
@@ -12,6 +13,7 @@ const STATUS_COLORS: Record<string, string> = {
 export const GenericNode = memo(function GenericNode({ data, selected }: NodeProps) {
   const status = String(data['status'] ?? 'default');
   const badges = (data['badges'] as string[] | undefined) ?? [];
+  const ports = data['ports'] as PortDef[] | undefined;
 
   return (
     <div
@@ -20,7 +22,7 @@ export const GenericNode = memo(function GenericNode({ data, selected }: NodePro
       tabIndex={0}
       aria-label={`Generic: ${String(data['label'])}`}
     >
-      <Handle type="target" position={Position.Left} className="af-handle" />
+      <PortHandles ports={ports} />
       <div
         className="af-node__header"
         style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}
@@ -41,7 +43,6 @@ export const GenericNode = memo(function GenericNode({ data, selected }: NodePro
           ))}
         </div>
       )}
-      <Handle type="source" position={Position.Right} className="af-handle" />
     </div>
   );
 });
