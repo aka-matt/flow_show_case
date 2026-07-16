@@ -1,401 +1,422 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Architecture Flow - Web Component Examples</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏗️</text></svg>">
-  <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-    }
-
-    :root {
-      --color-bg: #f8fafc;
-      --color-surface: #ffffff;
-      --color-text: #1e293b;
-      --color-text-muted: #64748b;
-      --color-border: #e2e8f0;
-      --color-primary: #3b82f6;
-      --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-
-    html {
-      font-family: var(--font-family);
-      background: var(--color-bg);
-      color: var(--color-text);
-      line-height: 1.6;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-    }
-
-    /* Page Header */
-    .page-header {
-      background: var(--color-surface);
-      border-bottom: 1px solid var(--color-border);
-      padding: 24px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .page-header-inner {
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    .page-title {
-      font-size: 24px;
-      font-weight: 700;
-      margin: 0 0 8px 0;
-      color: var(--color-text);
-    }
-
-    .page-description {
-      margin: 0 0 16px 0;
-      color: var(--color-text-muted);
-      font-size: 14px;
-    }
-
-    .controls {
-      display: flex;
-      gap: 24px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .control-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .control-label {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--color-text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    select {
-      padding: 6px 12px;
-      border: 1px solid var(--color-border);
-      border-radius: 6px;
-      background: var(--color-surface);
-      color: var(--color-text);
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    select:focus {
-      outline: 2px solid var(--color-primary);
-      outline-offset: 2px;
-    }
-
-    /* Main Content */
-    .main-content {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 24px;
-    }
-
-    /* Demo Section */
-    .demo-section {
-      margin-bottom: 48px;
-    }
-
-    .demo-header {
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-
-    .demo-info {
-      flex: 1;
-    }
-
-    .demo-title {
-      font-size: 18px;
-      font-weight: 600;
-      margin: 0 0 4px 0;
-      color: var(--color-text);
-    }
-
-    .demo-description {
-      font-size: 14px;
-      color: var(--color-text-muted);
-      margin: 0;
-    }
-
-    .demo-badge {
-      padding: 4px 10px;
-      background: var(--color-primary);
-      color: white;
-      font-size: 11px;
-      font-weight: 700;
-      border-radius: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    /* Demo Card */
-    .demo-card {
-      background: var(--color-surface);
-      border: 1px solid var(--color-border);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-
-    .demo-code {
-      background: #1e293b;
-      color: #e2e8f0;
-      padding: 16px;
-      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
-      font-size: 12px;
-      overflow-x: auto;
-      white-space: pre;
-      margin: 0;
-      border-bottom: 1px solid #334155;
-    }
-
-    .demo-component {
-      padding: 16px;
-      min-height: 300px;
-    }
-
-    /* Two Column Layout */
-    .two-column {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    @media (max-width: 900px) {
-      .two-column {
-        grid-template-columns: 1fr;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Architecture Flow - Web Component Examples</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏗️</text></svg>"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
       }
-    }
 
-    /* Runtime Controls */
-    .runtime-controls {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      padding: 16px;
-      background: #f1f5f9;
-      border-top: 1px solid var(--color-border);
-    }
+      :root {
+        --color-bg: #f8fafc;
+        --color-surface: #ffffff;
+        --color-text: #1e293b;
+        --color-text-muted: #64748b;
+        --color-border: #e2e8f0;
+        --color-primary: #3b82f6;
+        --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
 
-    button {
-      padding: 8px 16px;
-      border: 1px solid var(--color-border);
-      border-radius: 6px;
-      background: var(--color-surface);
-      color: var(--color-text);
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
+      html {
+        font-family: var(--font-family);
+        background: var(--color-bg);
+        color: var(--color-text);
+        line-height: 1.6;
+      }
 
-    button:hover {
-      background: #f1f5f9;
-      border-color: var(--color-primary);
-    }
+      body {
+        margin: 0;
+        padding: 0;
+      }
 
-    button:active {
-      transform: scale(0.98);
-    }
+      /* Page Header */
+      .page-header {
+        background: var(--color-surface);
+        border-bottom: 1px solid var(--color-border);
+        padding: 24px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
 
-    button.primary {
-      background: var(--color-primary);
-      color: white;
-      border-color: var(--color-primary);
-    }
+      .page-header-inner {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
 
-    button.primary:hover {
-      background: #2563eb;
-    }
+      .page-title {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+        color: var(--color-text);
+      }
 
-    /* Event Log */
-    .event-log-container {
-      background: var(--color-surface);
-      border: 1px solid var(--color-border);
-      border-radius: 12px;
-      margin-top: 32px;
-    }
+      .page-description {
+        margin: 0 0 16px 0;
+        color: var(--color-text-muted);
+        font-size: 14px;
+      }
 
-    .event-log-header {
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--color-border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+      .controls {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
 
-    .event-log-title {
-      font-size: 14px;
-      font-weight: 600;
-      margin: 0;
-    }
+      .control-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
 
-    .event-log-count {
-      font-size: 12px;
-      color: var(--color-text-muted);
-    }
+      .control-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--color-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
 
-    .event-log-list {
-      max-height: 200px;
-      overflow-y: auto;
-      font-family: 'SF Mono', Monaco, monospace;
-      font-size: 11px;
-    }
+      select {
+        padding: 6px 12px;
+        border: 1px solid var(--color-border);
+        border-radius: 6px;
+        background: var(--color-surface);
+        color: var(--color-text);
+        font-size: 14px;
+        cursor: pointer;
+      }
 
-    .event-log-entry {
-      padding: 6px 16px;
-      border-bottom: 1px solid #f1f5f9;
-      display: flex;
-      gap: 12px;
-    }
+      select:focus {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+      }
 
-    .event-log-entry:last-child {
-      border-bottom: none;
-    }
+      /* Main Content */
+      .main-content {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 24px;
+      }
 
-    .event-time {
-      color: var(--color-text-muted);
-      white-space: nowrap;
-    }
+      /* Demo Section */
+      .demo-section {
+        margin-bottom: 48px;
+      }
 
-    .event-type {
-      font-weight: 600;
-      min-width: 120px;
-    }
+      .demo-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
 
-    .event-type.flow-ready { color: #059669; }
-    .event-type.flow-loaded { color: #3b82f6; }
-    .event-type.flow-error { color: #dc2626; }
-    .event-type.node-click { color: #7c3aed; }
-    .event-type.edge-click { color: #db2777; }
-    .event-type.theme-change { color: #0891b2; }
-    .event-type.viewport-change { color: #65a30d; }
+      .demo-info {
+        flex: 1;
+      }
 
-    .event-data {
-      color: var(--color-text-muted);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+      .demo-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0 0 4px 0;
+        color: var(--color-text);
+      }
 
-    /* Hostile CSS container - isolated to not break entire page */
-    .hostile-css-test {
-      all: initial;
-    }
+      .demo-description {
+        font-size: 14px;
+        color: var(--color-text-muted);
+        margin: 0;
+      }
 
-    .hostile-css-test * {
-      box-sizing: border-box;
-    }
+      .demo-badge {
+        padding: 4px 10px;
+        background: var(--color-primary);
+        color: white;
+        font-size: 11px;
+        font-weight: 700;
+        border-radius: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
 
-    .hostile-css-test button {
-      font-size: 40px;
-      border: 8px solid red;
-      background: white;
-      color: black;
-    }
+      /* Demo Card */
+      .demo-card {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        overflow: hidden;
+      }
 
-    .hostile-css-test svg {
-      fill: hotpink;
-    }
+      .demo-code {
+        background: #1e293b;
+        color: #e2e8f0;
+        padding: 16px;
+        font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+        font-size: 12px;
+        overflow-x: auto;
+        white-space: pre;
+        margin: 0;
+        border-bottom: 1px solid #334155;
+      }
 
-    .hostile-css-test * {
-      font-family: serif;
-    }
+      .demo-component {
+        padding: 16px;
+        min-height: 300px;
+      }
 
-    /* Error states container */
-    .error-states-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 16px;
-    }
+      /* Two Column Layout */
+      .two-column {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
 
-    .error-item {
-      border: 1px solid var(--color-border);
-      border-radius: 8px;
-      overflow: hidden;
-    }
+      @media (max-width: 900px) {
+        .two-column {
+          grid-template-columns: 1fr;
+        }
+      }
 
-    .error-item-header {
-      padding: 8px 12px;
-      background: #fef2f2;
-      border-bottom: 1px solid #fecaca;
-      font-size: 12px;
-      font-weight: 600;
-      color: #dc2626;
-    }
+      /* Runtime Controls */
+      .runtime-controls {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding: 16px;
+        background: #f1f5f9;
+        border-top: 1px solid var(--color-border);
+      }
 
-    .error-item .demo-component {
-      min-height: 200px;
-      padding: 12px;
-    }
+      button {
+        padding: 8px 16px;
+        border: 1px solid var(--color-border);
+        border-radius: 6px;
+        background: var(--color-surface);
+        color: var(--color-text);
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
 
-    /* Inline JSON demo specific styling */
-    .inline-json-demo .demo-component {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-  </style>
-</head>
-<body>
-  <!-- Page Header with Global Controls -->
-  <header class="page-header">
-    <div class="page-header-inner">
-      <h1 class="page-title">Architecture Flow Web Component</h1>
-      <p class="page-description">
-        A custom element for rendering architecture diagrams using React Flow, with Shadow DOM isolation,
-        JSON-driven data, theme support, and palette customization.
-      </p>
-      <div class="controls">
-        <div class="control-group">
-          <label class="control-label" for="theme-select">Theme</label>
-          <select id="theme-select">
-            <option value="system">System</option>
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-          </select>
-        </div>
-        <div class="control-group">
-          <label class="control-label" for="palette-select">Palette</label>
-          <select id="palette-select">
-            <option value="blue">Blue</option>
-            <option value="indigo">Indigo</option>
-            <option value="teal">Teal</option>
-            <option value="violet">Violet</option>
-            <option value="slate">Slate</option>
-            <option value="amber">Amber</option>
-          </select>
+      button:hover {
+        background: #f1f5f9;
+        border-color: var(--color-primary);
+      }
+
+      button:active {
+        transform: scale(0.98);
+      }
+
+      button.primary {
+        background: var(--color-primary);
+        color: white;
+        border-color: var(--color-primary);
+      }
+
+      button.primary:hover {
+        background: #2563eb;
+      }
+
+      /* Event Log */
+      .event-log-container {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        margin-top: 32px;
+      }
+
+      .event-log-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--color-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .event-log-title {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .event-log-count {
+        font-size: 12px;
+        color: var(--color-text-muted);
+      }
+
+      .event-log-list {
+        max-height: 200px;
+        overflow-y: auto;
+        font-family: 'SF Mono', Monaco, monospace;
+        font-size: 11px;
+      }
+
+      .event-log-entry {
+        padding: 6px 16px;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        gap: 12px;
+      }
+
+      .event-log-entry:last-child {
+        border-bottom: none;
+      }
+
+      .event-time {
+        color: var(--color-text-muted);
+        white-space: nowrap;
+      }
+
+      .event-type {
+        font-weight: 600;
+        min-width: 120px;
+      }
+
+      .event-type.flow-ready {
+        color: #059669;
+      }
+      .event-type.flow-loaded {
+        color: #3b82f6;
+      }
+      .event-type.flow-error {
+        color: #dc2626;
+      }
+      .event-type.node-click {
+        color: #7c3aed;
+      }
+      .event-type.edge-click {
+        color: #db2777;
+      }
+      .event-type.theme-change {
+        color: #0891b2;
+      }
+      .event-type.viewport-change {
+        color: #65a30d;
+      }
+
+      .event-data {
+        color: var(--color-text-muted);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      /* Hostile CSS container - isolated to not break entire page */
+      .hostile-css-test {
+        all: initial;
+      }
+
+      .hostile-css-test * {
+        box-sizing: border-box;
+      }
+
+      .hostile-css-test button {
+        font-size: 40px;
+        border: 8px solid red;
+        background: white;
+        color: black;
+      }
+
+      .hostile-css-test svg {
+        fill: hotpink;
+      }
+
+      .hostile-css-test * {
+        font-family: serif;
+      }
+
+      /* Error states container */
+      .error-states-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 16px;
+      }
+
+      .error-item {
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .error-item-header {
+        padding: 8px 12px;
+        background: #fef2f2;
+        border-bottom: 1px solid #fecaca;
+        font-size: 12px;
+        font-weight: 600;
+        color: #dc2626;
+      }
+
+      .error-item .demo-component {
+        min-height: 200px;
+        padding: 12px;
+      }
+
+      /* Inline JSON demo specific styling */
+      .inline-json-demo .demo-component {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Page Header with Global Controls -->
+    <header class="page-header">
+      <div class="page-header-inner">
+        <h1 class="page-title">Architecture Flow Web Component</h1>
+        <p class="page-description">
+          A custom element for rendering architecture diagrams using React Flow, with Shadow DOM
+          isolation, JSON-driven data, theme support, and palette customization.
+        </p>
+        <div class="controls">
+          <div class="control-group">
+            <label class="control-label" for="theme-select">Theme</label>
+            <select id="theme-select">
+              <option value="system">System</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label class="control-label" for="palette-select">Palette</label>
+            <select id="palette-select">
+              <option value="blue">Blue</option>
+              <option value="indigo">Indigo</option>
+              <option value="teal">Teal</option>
+              <option value="violet">Violet</option>
+              <option value="slate">Slate</option>
+              <option value="amber">Amber</option>
+            </select>
+          </div>
         </div>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- Main Content -->
-  <main class="main-content">
-
-    <!-- Demo A: Basic External JSON -->
-    <section class="demo-section">
-      <div class="demo-header">
-        <div class="demo-info">
-          <h2 class="demo-title">Demo A: External JSON</h2>
-          <p class="demo-description">Load architecture data from an external JSON file via the <code>src</code> attribute.</p>
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Demo A: Basic External JSON -->
+      <section class="demo-section">
+        <div class="demo-header">
+          <div class="demo-info">
+            <h2 class="demo-title">Demo A: External JSON</h2>
+            <p class="demo-description">
+              Load architecture data from an external JSON file via the <code>src</code> attribute.
+            </p>
+          </div>
+          <span class="demo-badge">External JSON</span>
         </div>
-        <span class="demo-badge">External JSON</span>
-      </div>
-      <div class="demo-card">
-        <pre class="demo-code">&lt;architecture-flow
+        <div class="demo-card">
+          <pre class="demo-code">
+&lt;architecture-flow
   src="./architecture-basic.json"
   theme="system"
   palette="blue"
@@ -403,59 +424,62 @@
   fit-view
   show-controls&gt;
 &lt;/architecture-flow&gt;</pre>
-        <div class="demo-component">
-          <architecture-flow
-            id="demo-a"
-            src="./architecture-basic.json"
-            theme="system"
-            palette="blue"
-            interactive
-            fit-view
-            show-controls>
-          </architecture-flow>
+          <div class="demo-component">
+            <architecture-flow
+              id="demo-a"
+              src="./architecture-basic.json"
+              theme="system"
+              palette="blue"
+              interactive
+              fit-view
+              show-controls
+            >
+            </architecture-flow>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Demo B: JavaScript Property API -->
-    <section class="demo-section">
-      <div class="demo-header">
-        <div class="demo-info">
-          <h2 class="demo-title">Demo B: JavaScript Property API</h2>
-          <p class="demo-description">Set diagram data programmatically via the <code>data</code> property.</p>
+      <!-- Demo B: JavaScript Property API -->
+      <section class="demo-section">
+        <div class="demo-header">
+          <div class="demo-info">
+            <h2 class="demo-title">Demo B: JavaScript Property API</h2>
+            <p class="demo-description">
+              Set diagram data programmatically via the <code>data</code> property.
+            </p>
+          </div>
+          <span class="demo-badge">Property API</span>
         </div>
-        <span class="demo-badge">Property API</span>
-      </div>
-      <div class="demo-card">
-        <pre class="demo-code">const flow = document.querySelector('#demo-b');
+        <div class="demo-card">
+          <pre class="demo-code">
+const flow = document.querySelector('#demo-b');
 flow.data = {
   schemaVersion: "1.0",
   nodes: [...],
   edges: [...]
 };</pre>
-        <div class="demo-component">
-          <architecture-flow
-            id="demo-b"
-            theme="light"
-            palette="teal"
-            interactive
-            fit-view>
-          </architecture-flow>
+          <div class="demo-component">
+            <architecture-flow id="demo-b" theme="light" palette="teal" interactive fit-view>
+            </architecture-flow>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Demo C: Inline JSON -->
-    <section class="demo-section">
-      <div class="demo-header">
-        <div class="demo-info">
-          <h2 class="demo-title">Demo C: Inline JSON</h2>
-          <p class="demo-description">Embed architecture data directly in HTML using a <code>&lt;script type="application/json"&gt;</code> child element.</p>
+      <!-- Demo C: Inline JSON -->
+      <section class="demo-section">
+        <div class="demo-header">
+          <div class="demo-info">
+            <h2 class="demo-title">Demo C: Inline JSON</h2>
+            <p class="demo-description">
+              Embed architecture data directly in HTML using a
+              <code>&lt;script type="application/json"&gt;</code> child element.
+            </p>
+          </div>
+          <span class="demo-badge">Inline JSON</span>
         </div>
-        <span class="demo-badge">Inline JSON</span>
-      </div>
-      <div class="demo-card inline-json-demo">
-        <pre class="demo-code">&lt;architecture-flow theme="light" palette="teal"&gt;
+        <div class="demo-card inline-json-demo">
+          <pre class="demo-code">
+&lt;architecture-flow theme="light" palette="teal"&gt;
   &lt;script type="application/json"&gt;
     {
       "schemaVersion": "1.0",
@@ -464,93 +488,92 @@ flow.data = {
     }
   &lt;/script&gt;
 &lt;/architecture-flow&gt;</pre>
-        <div class="demo-component">
-          <architecture-flow id="demo-c" theme="light" palette="teal" interactive fit-view>
-            <script type="application/json">
-{
-  "schemaVersion": "1.0",
-  "title": "Inline Demo",
-  "options": {
-    "layout": "manual",
-    "fitView": true,
-    "interactive": true,
-    "showControls": true,
-    "showBackground": true,
-    "edgeAnimation": true
-  },
-  "nodes": [
-    {
-      "id": "client",
-      "type": "client",
-      "title": "Web Browser",
-      "subtitle": "End user",
-      "position": { "x": 0, "y": 150 },
-      "status": "healthy",
-      "ports": [
-        { "id": "out", "type": "source", "side": "right", "label": "HTTP" }
-      ]
-    },
-    {
-      "id": "server",
-      "type": "service",
-      "title": "App Server",
-      "subtitle": "Node.js Express",
-      "position": { "x": 300, "y": 150 },
-      "ports": [
-        { "id": "in", "type": "target", "side": "left" },
-        { "id": "db", "type": "source", "side": "right" }
-      ]
-    },
-    {
-      "id": "db",
-      "type": "database",
-      "title": "Database",
-      "subtitle": "PostgreSQL",
-      "position": { "x": 600, "y": 150 },
-      "ports": [
-        { "id": "in", "type": "target", "side": "left" }
-      ]
-    }
-  ],
-  "edges": [
-    {
-      "id": "client-server",
-      "source": "client",
-      "sourcePort": "out",
-      "target": "server",
-      "targetPort": "in",
-      "label": "REST API",
-      "animated": true,
-      "markerEnd": "arrow"
-    },
-    {
-      "id": "server-db",
-      "source": "server",
-      "sourcePort": "db",
-      "target": "db",
-      "targetPort": "in",
-      "label": "SQL Query",
-      "markerEnd": "arrow"
-    }
-  ]
-}
-            </script>
-          </architecture-flow>
+          <div class="demo-component">
+            <architecture-flow id="demo-c" theme="light" palette="teal" interactive fit-view>
+              <script type="application/json">
+                {
+                  "schemaVersion": "1.0",
+                  "title": "Inline Demo",
+                  "options": {
+                    "layout": "manual",
+                    "fitView": true,
+                    "interactive": true,
+                    "showControls": true,
+                    "showBackground": true,
+                    "edgeAnimation": true
+                  },
+                  "nodes": [
+                    {
+                      "id": "client",
+                      "type": "client",
+                      "title": "Web Browser",
+                      "subtitle": "End user",
+                      "position": { "x": 0, "y": 150 },
+                      "status": "healthy",
+                      "ports": [{ "id": "out", "type": "source", "side": "right", "label": "HTTP" }]
+                    },
+                    {
+                      "id": "server",
+                      "type": "service",
+                      "title": "App Server",
+                      "subtitle": "Node.js Express",
+                      "position": { "x": 300, "y": 150 },
+                      "ports": [
+                        { "id": "in", "type": "target", "side": "left" },
+                        { "id": "db", "type": "source", "side": "right" }
+                      ]
+                    },
+                    {
+                      "id": "db",
+                      "type": "database",
+                      "title": "Database",
+                      "subtitle": "PostgreSQL",
+                      "position": { "x": 600, "y": 150 },
+                      "ports": [{ "id": "in", "type": "target", "side": "left" }]
+                    }
+                  ],
+                  "edges": [
+                    {
+                      "id": "client-server",
+                      "source": "client",
+                      "sourcePort": "out",
+                      "target": "server",
+                      "targetPort": "in",
+                      "label": "REST API",
+                      "animated": true,
+                      "markerEnd": "arrow"
+                    },
+                    {
+                      "id": "server-db",
+                      "source": "server",
+                      "sourcePort": "db",
+                      "target": "db",
+                      "targetPort": "in",
+                      "label": "SQL Query",
+                      "markerEnd": "arrow"
+                    }
+                  ]
+                }
+              </script>
+            </architecture-flow>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Demo D: Theme/Palette Switching -->
-    <section class="demo-section">
-      <div class="demo-header">
-        <div class="demo-info">
-          <h2 class="demo-title">Demo D: Theme & Palette Switching</h2>
-          <p class="demo-description">Demonstrates runtime theme and palette switching without reloading the component.</p>
+      <!-- Demo D: Theme/Palette Switching -->
+      <section class="demo-section">
+        <div class="demo-header">
+          <div class="demo-info">
+            <h2 class="demo-title">Demo D: Theme & Palette Switching</h2>
+            <p class="demo-description">
+              Demonstrates runtime theme and palette switching without reloading the component.
+            </p>
+          </div>
+          <span class="demo-badge">Theme Controls</span>
         </div>
-        <span class="demo-badge">Theme Controls</span>
-      </div>
-      <div class="demo-card">
-        <pre class="demo-code">&lt;architecture-flow id="demo-d"&gt;
+        <div class="demo-card">
+          <pre class="demo-code">
+&lt;architecture-flow id="demo-d"&gt;
 &lt;/architecture-flow&gt;
 
 &lt;script&gt;
@@ -558,481 +581,882 @@ flow.data = {
   document.querySelector('#demo-d').theme = 'dark';
   document.querySelector('#demo-d').palette = 'violet';
 &lt;/script&gt;</pre>
-        <div class="demo-component">
-          <architecture-flow
-            id="demo-d"
-            src="./architecture-basic.json"
-            theme="system"
-            palette="blue"
-            interactive
-            fit-view
-            show-controls>
-          </architecture-flow>
+          <div class="demo-component">
+            <architecture-flow
+              id="demo-d"
+              src="./architecture-basic.json"
+              theme="system"
+              palette="blue"
+              interactive
+              fit-view
+              show-controls
+            >
+            </architecture-flow>
+          </div>
+          <div class="runtime-controls">
+            <button onclick="setTheme('demo-d', 'system')">System</button>
+            <button onclick="setTheme('demo-d', 'light')">Light</button>
+            <button onclick="setTheme('demo-d', 'dark')">Dark</button>
+            <span
+              style="
+                margin-left: 8px;
+                border-left: 1px solid var(--color-border);
+                padding-left: 8px;
+              "
+            ></span>
+            <button onclick="setPalette('demo-d', 'blue')">Blue</button>
+            <button onclick="setPalette('demo-d', 'indigo')">Indigo</button>
+            <button onclick="setPalette('demo-d', 'teal')">Teal</button>
+            <button onclick="setPalette('demo-d', 'violet')">Violet</button>
+            <button onclick="setPalette('demo-d', 'slate')">Slate</button>
+            <button onclick="setPalette('demo-d', 'amber')">Amber</button>
+          </div>
         </div>
-        <div class="runtime-controls">
-          <button onclick="setTheme('demo-d', 'system')">System</button>
-          <button onclick="setTheme('demo-d', 'light')">Light</button>
-          <button onclick="setTheme('demo-d', 'dark')">Dark</button>
-          <span style="margin-left: 8px; border-left: 1px solid var(--color-border); padding-left: 8px;"></span>
-          <button onclick="setPalette('demo-d', 'blue')">Blue</button>
-          <button onclick="setPalette('demo-d', 'indigo')">Indigo</button>
-          <button onclick="setPalette('demo-d', 'teal')">Teal</button>
-          <button onclick="setPalette('demo-d', 'violet')">Violet</button>
-          <button onclick="setPalette('demo-d', 'slate')">Slate</button>
-          <button onclick="setPalette('demo-d', 'amber')">Amber</button>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Demo E: Runtime Data Controls -->
-    <section class="demo-section">
-      <div class="demo-header">
-        <div class="demo-info">
-          <h2 class="demo-title">Demo E: Runtime Data Controls</h2>
-          <p class="demo-description">Load different datasets, clear data, and control viewport programmatically.</p>
+      <!-- Demo E: Runtime Data Controls -->
+      <section class="demo-section">
+        <div class="demo-header">
+          <div class="demo-info">
+            <h2 class="demo-title">Demo E: Runtime Data Controls</h2>
+            <p class="demo-description">
+              Load different datasets, clear data, and control viewport programmatically.
+            </p>
+          </div>
+          <span class="demo-badge">Runtime Controls</span>
         </div>
-        <span class="demo-badge">Runtime Controls</span>
-      </div>
-      <div class="demo-card">
-        <pre class="demo-code">// Available methods
+        <div class="demo-card">
+          <pre class="demo-code">
+// Available methods
 element.setData(data);     // Set new data
 element.getData();         // Get current data
 element.reload();          // Reload from src
 element.fitViewAsync();    // Fit view
 element.resetViewport();   // Reset viewport position</pre>
-        <div class="demo-component">
-          <architecture-flow
-            id="demo-e"
-            src="./architecture-basic.json"
-            theme="dark"
-            palette="slate"
-            interactive
-            fit-view
-            show-controls>
-          </architecture-flow>
+          <div class="demo-component">
+            <architecture-flow
+              id="demo-e"
+              src="./architecture-basic.json"
+              theme="dark"
+              palette="slate"
+              interactive
+              fit-view
+              show-controls
+            >
+            </architecture-flow>
+          </div>
+          <div class="runtime-controls">
+            <button class="primary" onclick="loadMicroservices()">Load microservices</button>
+            <button class="primary" onclick="loadPipeline()">Load data pipeline</button>
+            <button onclick="clearData('demo-e')">Clear data</button>
+            <button onclick="reloadSrc('demo-e')">Reload src</button>
+            <span
+              style="
+                margin-left: 8px;
+                border-left: 1px solid var(--color-border);
+                padding-left: 8px;
+              "
+            ></span>
+            <button onclick="fitView('demo-e')">Fit view</button>
+            <button onclick="resetViewport('demo-e')">Reset viewport</button>
+          </div>
         </div>
-        <div class="runtime-controls">
-          <button class="primary" onclick="loadMicroservices()">Load microservices</button>
-          <button class="primary" onclick="loadPipeline()">Load data pipeline</button>
-          <button onclick="clearData('demo-e')">Clear data</button>
-          <button onclick="reloadSrc('demo-e')">Reload src</button>
-          <span style="margin-left: 8px; border-left: 1px solid var(--color-border); padding-left: 8px;"></span>
-          <button onclick="fitView('demo-e')">Fit view</button>
-          <button onclick="resetViewport('demo-e')">Reset viewport</button>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Demo F: Event Log Panel -->
-    <section class="demo-section">
-      <div class="demo-header">
-        <div class="demo-info">
-          <h2 class="demo-title">Demo F: Event Log</h2>
-          <p class="demo-description">All custom events fired by the component are logged here. Click on nodes and edges to trigger events.</p>
+      <!-- Demo F: Event Log Panel -->
+      <section class="demo-section">
+        <div class="demo-header">
+          <div class="demo-info">
+            <h2 class="demo-title">Demo F: Event Log</h2>
+            <p class="demo-description">
+              All custom events fired by the component are logged here. Click on nodes and edges to
+              trigger events.
+            </p>
+          </div>
+          <span class="demo-badge">Events</span>
         </div>
-        <span class="demo-badge">Events</span>
-      </div>
-      <div class="demo-card">
-        <pre class="demo-code">// Events are composed and bubble through Shadow DOM
+        <div class="demo-card">
+          <pre class="demo-code">
+// Events are composed and bubble through Shadow DOM
 element.addEventListener('flow-ready', (e) => console.log(e.detail));
 element.addEventListener('node-click', (e) => console.log(e.detail));
 element.addEventListener('theme-change', (e) => console.log(e.detail));</pre>
-        <div class="demo-component">
-          <architecture-flow
-            id="demo-f"
-            src="./architecture-basic.json"
-            theme="system"
-            palette="indigo"
-            interactive
-            fit-view
-            show-controls>
-          </architecture-flow>
+          <div class="demo-component">
+            <architecture-flow
+              id="demo-f"
+              src="./architecture-basic.json"
+              theme="system"
+              palette="indigo"
+              interactive
+              fit-view
+              show-controls
+            >
+            </architecture-flow>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Event Log Display -->
-    <div class="event-log-container">
-      <div class="event-log-header">
-        <h3 class="event-log-title">Event Log</h3>
-        <span class="event-log-count" id="event-count">0 events</span>
-      </div>
-      <div class="event-log-list" id="event-log">
-        <div class="event-log-entry">
-          <span class="event-time">--:--:--</span>
-          <span class="event-type" style="color: var(--color-text-muted);">Waiting for events...</span>
-          <span class="event-data"></span>
+      <!-- Event Log Display -->
+      <div class="event-log-container">
+        <div class="event-log-header">
+          <h3 class="event-log-title">Event Log</h3>
+          <span class="event-log-count" id="event-count">0 events</span>
+        </div>
+        <div class="event-log-list" id="event-log">
+          <div class="event-log-entry">
+            <span class="event-time">--:--:--</span>
+            <span class="event-type" style="color: var(--color-text-muted)"
+              >Waiting for events...</span
+            >
+            <span class="event-data"></span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Demo G: Multiple Instances -->
-    <section class="demo-section">
-      <div class="demo-header">
-        <div class="demo-info">
-          <h2 class="demo-title">Demo G: Multiple Instances</h2>
-          <p class="demo-description">Multiple components on the same page, each with independent theme and palette settings.</p>
+      <!-- Demo G: Multiple Instances -->
+      <section class="demo-section">
+        <div class="demo-header">
+          <div class="demo-info">
+            <h2 class="demo-title">Demo G: Multiple Instances</h2>
+            <p class="demo-description">
+              Multiple components on the same page, each with independent theme and palette
+              settings.
+            </p>
+          </div>
+          <span class="demo-badge">Multiple Instances</span>
         </div>
-        <span class="demo-badge">Multiple Instances</span>
-      </div>
-      <div class="demo-card">
-        <pre class="demo-code">&lt;!-- Dark + Violet --&gt;
+        <div class="demo-card">
+          <pre class="demo-code">
+&lt;!-- Dark + Violet --&gt;
 &lt;architecture-flow theme="dark" palette="violet" ...&gt;
 
 &lt;!-- Light + Teal --&gt;
 &lt;architecture-flow theme="light" palette="teal" ...&gt;</pre>
-        <div class="two-column">
-          <div class="demo-component" style="background: #1e1e2e;">
-            <architecture-flow
-              id="demo-g-dark"
-              src="./architecture-basic.json"
-              theme="dark"
-              palette="violet"
-              interactive
-              fit-view>
-            </architecture-flow>
-          </div>
-          <div class="demo-component">
-            <architecture-flow
-              id="demo-g-light"
-              src="./architecture-basic.json"
-              theme="light"
-              palette="teal"
-              interactive
-              fit-view>
-            </architecture-flow>
+          <div class="two-column">
+            <div class="demo-component" style="background: #1e1e2e">
+              <architecture-flow
+                id="demo-g-dark"
+                src="./architecture-basic.json"
+                theme="dark"
+                palette="violet"
+                interactive
+                fit-view
+              >
+              </architecture-flow>
+            </div>
+            <div class="demo-component">
+              <architecture-flow
+                id="demo-g-light"
+                src="./architecture-basic.json"
+                theme="light"
+                palette="teal"
+                interactive
+                fit-view
+              >
+              </architecture-flow>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Demo H: Hostile CSS Isolation -->
-    <section class="demo-section">
-      <div class="demo-header">
-        <div class="demo-info">
-          <h2 class="demo-title">Demo H: CSS Isolation Test</h2>
-          <p class="demo-description">Verifies that Shadow DOM properly isolates the component from hostile global CSS.</p>
+      <!-- Demo H: Hostile CSS Isolation -->
+      <section class="demo-section">
+        <div class="demo-header">
+          <div class="demo-info">
+            <h2 class="demo-title">Demo H: CSS Isolation Test</h2>
+            <p class="demo-description">
+              Verifies that Shadow DOM properly isolates the component from hostile global CSS.
+            </p>
+          </div>
+          <span class="demo-badge">CSS Isolation</span>
         </div>
-        <span class="demo-badge">CSS Isolation</span>
-      </div>
-      <div class="demo-card">
-        <pre class="demo-code">/* Hostile CSS applied globally - should NOT affect component */
+        <div class="demo-card">
+          <pre class="demo-code">
+/* Hostile CSS applied globally - should NOT affect component */
 * { box-sizing: content-box; }
 button { font-size: 40px; border: 8px solid red; }
 svg { fill: hotpink; }
 
 /* Architecture Flow should still render correctly inside Shadow DOM */</pre>
-        <div class="hostile-css-test">
-          <div class="demo-component">
-            <architecture-flow
-              id="demo-h"
-              src="./architecture-basic.json"
-              theme="light"
-              palette="blue"
-              interactive
-              fit-view>
-            </architecture-flow>
+          <div class="hostile-css-test">
+            <div class="demo-component">
+              <architecture-flow
+                id="demo-h"
+                src="./architecture-basic.json"
+                theme="light"
+                palette="blue"
+                interactive
+                fit-view
+              >
+              </architecture-flow>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Demo I: CSS Variables Override -->
-    <section class="demo-section">
-      <div class="demo-header">
-        <div class="demo-info">
-          <h2 class="demo-title">Demo I: CSS Variables Override</h2>
-          <p class="demo-description">Host page can override palette tokens via inline CSS custom properties.</p>
+      <!-- Demo I: CSS Variables Override -->
+      <section class="demo-section">
+        <div class="demo-header">
+          <div class="demo-info">
+            <h2 class="demo-title">Demo I: CSS Variables Override</h2>
+            <p class="demo-description">
+              Host page can override palette tokens via inline CSS custom properties.
+            </p>
+          </div>
+          <span class="demo-badge">CSS Variables</span>
         </div>
-        <span class="demo-badge">CSS Variables</span>
-      </div>
-      <div class="demo-card">
-        <pre class="demo-code">&lt;architecture-flow
+        <div class="demo-card">
+          <pre class="demo-code">
+&lt;architecture-flow
   style="--af-color-primary: #e11d48;
          --af-radius-node: 20px;
          --af-shadow-node: 0 8px 24px rgba(0,0,0,0.15);"
   ...&gt;</pre>
-        <div class="demo-component">
-          <architecture-flow
-            id="demo-i"
-            src="./architecture-basic.json"
-            theme="light"
-            palette="blue"
-            interactive
-            fit-view
-            show-controls
-            style="--af-color-primary: #e11d48; --af-radius-node: 20px; --af-shadow-node: 0 8px 24px rgba(0,0,0,0.15);">
-          </architecture-flow>
-        </div>
-      </div>
-    </section>
-
-    <!-- Demo J: Error States -->
-    <section class="demo-section">
-      <div class="demo-header">
-        <div class="demo-info">
-          <h2 class="demo-title">Demo J: Error States</h2>
-          <p class="demo-description">Demonstrates graceful error handling for invalid JSON, missing resources, and unknown palettes.</p>
-        </div>
-        <span class="demo-badge">Error Handling</span>
-      </div>
-      <div class="demo-card">
-        <div class="error-states-grid" style="padding: 16px;">
-          <div class="error-item">
-            <div class="error-item-header">Invalid JSON URL (404)</div>
-            <div class="demo-component">
-              <architecture-flow
-                id="demo-j-invalid-url"
-                src="./nonexistent.json"
-                theme="light"
-                palette="blue"
-                interactive>
-              </architecture-flow>
-            </div>
-          </div>
-          <div class="error-item">
-            <div class="error-item-header">Invalid Palette (fallback to blue)</div>
-            <div class="demo-component">
-              <architecture-flow
-                id="demo-j-invalid-palette"
-                src="./architecture-basic.json"
-                theme="light"
-                palette="nonexistent-palette"
-                interactive>
-              </architecture-flow>
-            </div>
-          </div>
-          <div class="error-item">
-            <div class="error-item-header">Missing Node Reference</div>
-            <div class="demo-component">
-              <architecture-flow
-                id="demo-j-missing-node"
-                theme="light"
-                palette="blue"
-                interactive>
-                <script type="application/json">
-{
-  "schemaVersion": "1.0",
-  "nodes": [
-    {
-      "id": "orphan-node",
-      "type": "service",
-      "title": "Orphan Service",
-      "position": { "x": 100, "y": 100 }
-    }
-  ],
-  "edges": [
-    {
-      "id": "missing-edge",
-      "source": "orphan-node",
-      "sourcePort": "out",
-      "target": "nonexistent-node",
-      "targetPort": "in"
-    }
-  ]
-}
-                </script>
-              </architecture-flow>
-            </div>
+          <div class="demo-component">
+            <architecture-flow
+              id="demo-i"
+              src="./architecture-basic.json"
+              theme="light"
+              palette="blue"
+              interactive
+              fit-view
+              show-controls
+              style="
+                --af-color-primary: #e11d48;
+                --af-radius-node: 20px;
+                --af-shadow-node: 0 8px 24px rgba(0, 0, 0, 0.15);
+              "
+            >
+            </architecture-flow>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-  </main>
+      <!-- Demo J: Error States -->
+      <section class="demo-section">
+        <div class="demo-header">
+          <div class="demo-info">
+            <h2 class="demo-title">Demo J: Error States</h2>
+            <p class="demo-description">
+              Demonstrates graceful error handling for invalid JSON, missing resources, and unknown
+              palettes.
+            </p>
+          </div>
+          <span class="demo-badge">Error Handling</span>
+        </div>
+        <div class="demo-card">
+          <div class="error-states-grid" style="padding: 16px">
+            <div class="error-item">
+              <div class="error-item-header">Invalid JSON URL (404)</div>
+              <div class="demo-component">
+                <architecture-flow
+                  id="demo-j-invalid-url"
+                  src="./nonexistent.json"
+                  theme="light"
+                  palette="blue"
+                  interactive
+                >
+                </architecture-flow>
+              </div>
+            </div>
+            <div class="error-item">
+              <div class="error-item-header">Invalid Palette (fallback to blue)</div>
+              <div class="demo-component">
+                <architecture-flow
+                  id="demo-j-invalid-palette"
+                  src="./architecture-basic.json"
+                  theme="light"
+                  palette="nonexistent-palette"
+                  interactive
+                >
+                </architecture-flow>
+              </div>
+            </div>
+            <div class="error-item">
+              <div class="error-item-header">Missing Node Reference</div>
+              <div class="demo-component">
+                <architecture-flow
+                  id="demo-j-missing-node"
+                  theme="light"
+                  palette="blue"
+                  interactive
+                >
+                  <script type="application/json">
+                    {
+                      "schemaVersion": "1.0",
+                      "nodes": [
+                        {
+                          "id": "orphan-node",
+                          "type": "service",
+                          "title": "Orphan Service",
+                          "position": { "x": 100, "y": 100 }
+                        }
+                      ],
+                      "edges": [
+                        {
+                          "id": "missing-edge",
+                          "source": "orphan-node",
+                          "sourcePort": "out",
+                          "target": "nonexistent-node",
+                          "targetPort": "in"
+                        }
+                      ]
+                    }
+                  </script>
+                </architecture-flow>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
 
-  <!-- Load the Architecture Flow component -->
-  <script type="module" src="../dist/architecture-flow.js"></script>
+    <!-- Load the Architecture Flow component -->
+    <script type="module" src="../dist/architecture-flow.js"></script>
 
-  <script>
-    // Global state for event log
-    const eventLog = [];
-    const MAX_EVENTS = 50;
-    const eventLogEl = document.getElementById('event-log');
-    const eventCountEl = document.getElementById('event-count');
+    <script>
+      // Global state for event log
+      const eventLog = [];
+      const MAX_EVENTS = 50;
+      const eventLogEl = document.getElementById('event-log');
+      const eventCountEl = document.getElementById('event-count');
 
-    function addEvent(type, detail) {
-      const time = new Date().toLocaleTimeString('en-US', { hour12: false });
-      eventLog.unshift({ time, type, detail });
-      if (eventLog.length > MAX_EVENTS) {
-        eventLog.pop();
+      function addEvent(type, detail) {
+        const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+        eventLog.unshift({ time, type, detail });
+        if (eventLog.length > MAX_EVENTS) {
+          eventLog.pop();
+        }
+        renderEventLog();
       }
-      renderEventLog();
-    }
 
-    function renderEventLog() {
-      eventCountEl.textContent = `${eventLog.length} events`;
-      if (eventLog.length === 0) {
-        eventLogEl.innerHTML = `
+      function renderEventLog() {
+        eventCountEl.textContent = `${eventLog.length} events`;
+        if (eventLog.length === 0) {
+          eventLogEl.innerHTML = `
           <div class="event-log-entry">
             <span class="event-time">--:--:--</span>
             <span class="event-type" style="color: var(--color-text-muted);">Waiting for events...</span>
             <span class="event-data"></span>
           </div>`;
-        return;
-      }
-      eventLogEl.innerHTML = eventLog.map(e => `
+          return;
+        }
+        eventLogEl.innerHTML = eventLog
+          .map(
+            (e) => `
         <div class="event-log-entry">
           <span class="event-time">${e.time}</span>
           <span class="event-type ${e.type}">${e.type}</span>
           <span class="event-data">${JSON.stringify(e.detail).slice(0, 100)}</span>
         </div>
-      `).join('');
-    }
-
-    // Set up event listeners for all demo components
-    function setupDemoEvents(id) {
-      const el = document.getElementById(id);
-      if (!el) return;
-
-      el.addEventListener('flow-ready', (e) => addEvent('flow-ready', e.detail));
-      el.addEventListener('flow-loading', (e) => addEvent('flow-loading', { src: e.detail.src }));
-      el.addEventListener('flow-loaded', (e) => addEvent('flow-loaded', { source: e.detail.source }));
-      el.addEventListener('flow-error', (e) => addEvent('flow-error', e.detail));
-      el.addEventListener('node-click', (e) => addEvent('node-click', { nodeId: e.detail.node?.id }));
-      el.addEventListener('edge-click', (e) => addEvent('edge-click', { edgeId: e.detail.edge?.id }));
-      el.addEventListener('theme-change', (e) => addEvent('theme-change', e.detail));
-      el.addEventListener('viewport-change', (e) => addEvent('viewport-change', e.detail));
-    }
-
-    // Set up all demos
-    ['demo-a', 'demo-b', 'demo-c', 'demo-d', 'demo-e', 'demo-f', 'demo-g-dark', 'demo-g-light', 'demo-h', 'demo-i',
-     'demo-j-invalid-url', 'demo-j-invalid-palette', 'demo-j-missing-node'].forEach(setupDemoEvents);
-
-    // Global theme/palette control
-    document.getElementById('theme-select').addEventListener('change', (e) => {
-      const theme = e.target.value;
-      document.querySelectorAll('architecture-flow').forEach(el => {
-        el.theme = theme;
-      });
-    });
-
-    document.getElementById('palette-select').addEventListener('change', (e) => {
-      const palette = e.target.value;
-      document.querySelectorAll('architecture-flow').forEach(el => {
-        el.palette = palette;
-      });
-    });
-
-    // Demo B: Set data via property
-    const demoBData = {
-      schemaVersion: "1.0",
-      title: "Property API Demo",
-      options: {
-        layout: "manual",
-        fitView: true,
-        interactive: true,
-        showControls: true,
-        showBackground: true
-      },
-      nodes: [
-        { id: "api-client", type: "client", title: "API Client", subtitle: "REST consumer", position: { x: 0, y: 100 }, ports: [{ id: "out", type: "source", side: "right", label: "HTTPS" }] },
-        { id: "auth-service", type: "service", title: "Auth Service", subtitle: "JWT tokens", position: { x: 280, y: 50 }, ports: [{ id: "in", type: "target", side: "left" }, { id: "out", type: "source", side: "right" }] },
-        { id: "api-service", type: "service", title: "API Service", subtitle: "Business logic", position: { x: 280, y: 180 }, ports: [{ id: "in", type: "target", side: "left" }, { id: "db", type: "source", side: "right" }] },
-        { id: "redis-cache", type: "database", title: "Redis Cache", subtitle: "Session store", position: { x: 560, y: 50 }, ports: [{ id: "in", type: "target", side: "left" }] },
-        { id: "postgres-db", type: "database", title: "PostgreSQL", subtitle: "Primary DB", position: { x: 560, y: 180 }, ports: [{ id: "in", type: "target", side: "left" }] }
-      ],
-      edges: [
-        { id: "client-auth", source: "api-client", sourcePort: "out", target: "auth-service", targetPort: "in", label: "Login", animated: true, markerEnd: "arrow" },
-        { id: "client-api", source: "api-client", sourcePort: "out", target: "api-service", targetPort: "in", label: "Request", markerEnd: "arrow" },
-        { id: "auth-cache", source: "auth-service", sourcePort: "out", target: "redis-cache", targetPort: "in", label: "Session", markerEnd: "arrow" },
-        { id: "api-db", source: "api-service", sourcePort: "db", target: "postgres-db", targetPort: "in", label: "Query", markerEnd: "arrow" }
-      ]
-    };
-
-    // Wait for component to be defined, then set data
-    customElements.whenDefined('architecture-flow').then(() => {
-      const demoB = document.getElementById('demo-b');
-      if (demoB) {
-        demoB.data = demoBData;
+      `,
+          )
+          .join('');
       }
-    });
 
-    // Helper functions for Demo D
-    function setTheme(id, theme) {
-      document.getElementById(id).theme = theme;
-    }
+      // Set up event listeners for all demo components
+      function setupDemoEvents(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
 
-    function setPalette(id, palette) {
-      document.getElementById(id).palette = palette;
-    }
+        el.addEventListener('flow-ready', (e) => addEvent('flow-ready', e.detail));
+        el.addEventListener('flow-loading', (e) => addEvent('flow-loading', { src: e.detail.src }));
+        el.addEventListener('flow-loaded', (e) =>
+          addEvent('flow-loaded', { source: e.detail.source }),
+        );
+        el.addEventListener('flow-error', (e) => addEvent('flow-error', e.detail));
+        el.addEventListener('node-click', (e) =>
+          addEvent('node-click', { nodeId: e.detail.node?.id }),
+        );
+        el.addEventListener('edge-click', (e) =>
+          addEvent('edge-click', { edgeId: e.detail.edge?.id }),
+        );
+        el.addEventListener('theme-change', (e) => addEvent('theme-change', e.detail));
+        el.addEventListener('viewport-change', (e) => addEvent('viewport-change', e.detail));
+      }
 
-    // Helper functions for Demo E
-    const microservicesData = {
-      schemaVersion: "1.0",
-      title: "Microservices Platform",
-      options: { layout: "manual", fitView: true, interactive: true, showControls: true, showBackground: true, edgeAnimation: true },
-      nodes: [
-        { id: "mobile", type: "client", title: "Mobile App", subtitle: "iOS/Android", position: { x: 0, y: 100 }, status: "healthy", ports: [{ id: "https", type: "source", side: "right", label: "HTTPS" }] },
-        { id: "web", type: "client", title: "Web App", subtitle: "React SPA", position: { x: 0, y: 250 }, status: "healthy", ports: [{ id: "https", type: "source", side: "right", label: "HTTPS" }] },
-        { id: "gateway", type: "service", title: "API Gateway", subtitle: "Kong", position: { x: 250, y: 175 }, ports: [{ id: "in", type: "target", side: "left" }, { id: "users", type: "source", side: "right", offset: 20 }, { id: "orders", type: "source", side: "right", offset: 40 }, { id: "products", type: "source", side: "right", offset: 60 }] },
-        { id: "user-svc", type: "service", title: "User Service", subtitle: "Node.js", position: { x: 500, y: 50 }, ports: [{ id: "in", type: "target", side: "left" }, { id: "cache", type: "source", side: "right" }] },
-        { id: "order-svc", type: "service", title: "Order Service", subtitle: "Go", position: { x: 500, y: 175 }, ports: [{ id: "in", type: "target", side: "left" }, { id: "queue", type: "source", side: "right" }] },
-        { id: "product-svc", type: "service", title: "Product Service", subtitle: "Python", position: { x: 500, y: 300 }, ports: [{ id: "in", type: "target", side: "left" }, { id: "es", type: "source", side: "right" }] },
-        { id: "user-cache", type: "database", title: "User Cache", subtitle: "Redis", position: { x: 750, y: 50 }, ports: [{ id: "in", type: "target", side: "left" }] },
-        { id: "order-queue", type: "queue", title: "Order Queue", subtitle: "RabbitMQ", position: { x: 750, y: 175 }, ports: [{ id: "in", type: "target", side: "left" }, { id: "out", type: "source", side: "right" }] },
-        { id: "search", type: "database", title: "Search Index", subtitle: "Elasticsearch", position: { x: 750, y: 300 }, ports: [{ id: "in", type: "target", side: "left" }] }
-      ],
-      edges: [
-        { id: "mobile-gw", source: "mobile", sourcePort: "https", target: "gateway", targetPort: "in", label: "API", animated: true, markerEnd: "arrow" },
-        { id: "web-gw", source: "web", sourcePort: "https", target: "gateway", targetPort: "in", label: "API", animated: true, markerEnd: "arrow" },
-        { id: "gw-users", source: "gateway", sourcePort: "users", target: "user-svc", targetPort: "in", label: "REST", markerEnd: "arrow" },
-        { id: "gw-orders", source: "gateway", sourcePort: "orders", target: "order-svc", targetPort: "in", label: "REST", markerEnd: "arrow" },
-        { id: "gw-products", source: "gateway", sourcePort: "products", target: "product-svc", targetPort: "in", label: "REST", markerEnd: "arrow" },
-        { id: "user-cache", source: "user-svc", sourcePort: "cache", target: "user-cache", targetPort: "in", label: "Cache", markerEnd: "arrow" },
-        { id: "order-queue", source: "order-svc", sourcePort: "queue", target: "order-queue", targetPort: "in", label: "Event", animated: true, markerEnd: "arrow" },
-        { id: "product-es", source: "product-svc", sourcePort: "es", target: "search", targetPort: "in", label: "Index", markerEnd: "arrow" }
-      ]
-    };
+      // Set up all demos
+      [
+        'demo-a',
+        'demo-b',
+        'demo-c',
+        'demo-d',
+        'demo-e',
+        'demo-f',
+        'demo-g-dark',
+        'demo-g-light',
+        'demo-h',
+        'demo-i',
+        'demo-j-invalid-url',
+        'demo-j-invalid-palette',
+        'demo-j-missing-node',
+      ].forEach(setupDemoEvents);
 
-    const pipelineData = {
-      schemaVersion: "1.0",
-      title: "Data Pipeline",
-      options: { layout: "manual", fitView: true, interactive: true, showControls: true, showBackground: true, edgeAnimation: true },
-      nodes: [
-        { id: "sources", type: "group", title: "Data Sources", position: { x: 0, y: 0 } },
-        { id: "api-src", type: "client", title: "API Events", subtitle: "REST", position: { x: 50, y: 60 }, status: "healthy", ports: [{ id: "out", type: "source", side: "right", label: "JSON" }] },
-        { id: "db-src", type: "database", title: "DB CDC", subtitle: "PostgreSQL", position: { x: 50, y: 160 }, status: "healthy", ports: [{ id: "out", type: "source", side: "right", label: "WAL" }] },
-        { id: "kafka", type: "queue", title: "Kafka", subtitle: "Message broker", position: { x: 300, y: 110 }, ports: [{ id: "in", type: "target", side: "left" }, { id: "out", type: "source", side: "right" }] },
-        { id: "flink", type: "service", title: "Flink", subtitle: "Stream processor", position: { x: 520, y: 110 }, ports: [{ id: "in", type: "target", side: "left" }, { id: "raw", type: "source", side: "right", offset: 33 }, { id: "enriched", type: "source", side: "right", offset: 66 }] },
-        { id: "datalake", type: "database", title: "Data Lake", subtitle: "S3", position: { x: 740, y: 50 }, ports: [{ id: "in", type: "target", side: "left" }] },
-        { id: "warehouse", type: "database", title: "Warehouse", subtitle: "BigQuery", position: { x: 740, y: 170 }, ports: [{ id: "in", type: "target", side: "left" }] }
-      ],
-      edges: [
-        { id: "api-kafka", source: "api-src", sourcePort: "out", target: "kafka", targetPort: "in", label: "Events", animated: true, markerEnd: "arrow" },
-        { id: "db-kafka", source: "db-src", sourcePort: "out", target: "kafka", targetPort: "in", label: "CDC", animated: true, markerEnd: "arrow" },
-        { id: "kafka-flink", source: "kafka", sourcePort: "out", target: "flink", targetPort: "in", label: "Stream", animated: true, markerEnd: "arrow" },
-        { id: "flink-lake", source: "flink", sourcePort: "raw", target: "datalake", targetPort: "in", label: "Raw", markerEnd: "arrow" },
-        { id: "flink-wh", source: "flink", sourcePort: "enriched", target: "warehouse", targetPort: "in", label: "Enriched", markerEnd: "arrow" }
-      ]
-    };
+      // Global theme/palette control
+      document.getElementById('theme-select').addEventListener('change', (e) => {
+        const theme = e.target.value;
+        document.querySelectorAll('architecture-flow').forEach((el) => {
+          el.theme = theme;
+        });
+      });
 
-    function loadMicroservices() {
-      const el = document.getElementById('demo-e');
-      el.setData(microservicesData);
-    }
+      document.getElementById('palette-select').addEventListener('change', (e) => {
+        const palette = e.target.value;
+        document.querySelectorAll('architecture-flow').forEach((el) => {
+          el.palette = palette;
+        });
+      });
 
-    function loadPipeline() {
-      const el = document.getElementById('demo-e');
-      el.setData(pipelineData);
-    }
+      // Demo B: Set data via property
+      const demoBData = {
+        schemaVersion: '1.0',
+        title: 'Property API Demo',
+        options: {
+          layout: 'manual',
+          fitView: true,
+          interactive: true,
+          showControls: true,
+          showBackground: true,
+        },
+        nodes: [
+          {
+            id: 'api-client',
+            type: 'client',
+            title: 'API Client',
+            subtitle: 'REST consumer',
+            position: { x: 0, y: 100 },
+            ports: [{ id: 'out', type: 'source', side: 'right', label: 'HTTPS' }],
+          },
+          {
+            id: 'auth-service',
+            type: 'service',
+            title: 'Auth Service',
+            subtitle: 'JWT tokens',
+            position: { x: 280, y: 50 },
+            ports: [
+              { id: 'in', type: 'target', side: 'left' },
+              { id: 'out', type: 'source', side: 'right' },
+            ],
+          },
+          {
+            id: 'api-service',
+            type: 'service',
+            title: 'API Service',
+            subtitle: 'Business logic',
+            position: { x: 280, y: 180 },
+            ports: [
+              { id: 'in', type: 'target', side: 'left' },
+              { id: 'db', type: 'source', side: 'right' },
+            ],
+          },
+          {
+            id: 'redis-cache',
+            type: 'database',
+            title: 'Redis Cache',
+            subtitle: 'Session store',
+            position: { x: 560, y: 50 },
+            ports: [{ id: 'in', type: 'target', side: 'left' }],
+          },
+          {
+            id: 'postgres-db',
+            type: 'database',
+            title: 'PostgreSQL',
+            subtitle: 'Primary DB',
+            position: { x: 560, y: 180 },
+            ports: [{ id: 'in', type: 'target', side: 'left' }],
+          },
+        ],
+        edges: [
+          {
+            id: 'client-auth',
+            source: 'api-client',
+            sourcePort: 'out',
+            target: 'auth-service',
+            targetPort: 'in',
+            label: 'Login',
+            animated: true,
+            markerEnd: 'arrow',
+          },
+          {
+            id: 'client-api',
+            source: 'api-client',
+            sourcePort: 'out',
+            target: 'api-service',
+            targetPort: 'in',
+            label: 'Request',
+            markerEnd: 'arrow',
+          },
+          {
+            id: 'auth-cache',
+            source: 'auth-service',
+            sourcePort: 'out',
+            target: 'redis-cache',
+            targetPort: 'in',
+            label: 'Session',
+            markerEnd: 'arrow',
+          },
+          {
+            id: 'api-db',
+            source: 'api-service',
+            sourcePort: 'db',
+            target: 'postgres-db',
+            targetPort: 'in',
+            label: 'Query',
+            markerEnd: 'arrow',
+          },
+        ],
+      };
 
-    function clearData(id) {
-      const el = document.getElementById(id);
-      el.data = null;
-    }
+      // Wait for component to be defined, then set data
+      customElements.whenDefined('architecture-flow').then(() => {
+        const demoB = document.getElementById('demo-b');
+        if (demoB) {
+          demoB.data = demoBData;
+        }
+      });
 
-    function reloadSrc(id) {
-      document.getElementById(id).reload();
-    }
+      // Helper functions for Demo D
+      function setTheme(id, theme) {
+        document.getElementById(id).theme = theme;
+      }
 
-    function fitView(id) {
-      document.getElementById(id).fitViewAsync();
-    }
+      function setPalette(id, palette) {
+        document.getElementById(id).palette = palette;
+      }
 
-    function resetViewport(id) {
-      document.getElementById(id).resetViewport();
-    }
-  </script>
-</body>
+      // Helper functions for Demo E
+      const microservicesData = {
+        schemaVersion: '1.0',
+        title: 'Microservices Platform',
+        options: {
+          layout: 'manual',
+          fitView: true,
+          interactive: true,
+          showControls: true,
+          showBackground: true,
+          edgeAnimation: true,
+        },
+        nodes: [
+          {
+            id: 'mobile',
+            type: 'client',
+            title: 'Mobile App',
+            subtitle: 'iOS/Android',
+            position: { x: 0, y: 100 },
+            status: 'healthy',
+            ports: [{ id: 'https', type: 'source', side: 'right', label: 'HTTPS' }],
+          },
+          {
+            id: 'web',
+            type: 'client',
+            title: 'Web App',
+            subtitle: 'React SPA',
+            position: { x: 0, y: 250 },
+            status: 'healthy',
+            ports: [{ id: 'https', type: 'source', side: 'right', label: 'HTTPS' }],
+          },
+          {
+            id: 'gateway',
+            type: 'service',
+            title: 'API Gateway',
+            subtitle: 'Kong',
+            position: { x: 250, y: 175 },
+            ports: [
+              { id: 'in', type: 'target', side: 'left' },
+              { id: 'users', type: 'source', side: 'right', offset: 20 },
+              { id: 'orders', type: 'source', side: 'right', offset: 40 },
+              { id: 'products', type: 'source', side: 'right', offset: 60 },
+            ],
+          },
+          {
+            id: 'user-svc',
+            type: 'service',
+            title: 'User Service',
+            subtitle: 'Node.js',
+            position: { x: 500, y: 50 },
+            ports: [
+              { id: 'in', type: 'target', side: 'left' },
+              { id: 'cache', type: 'source', side: 'right' },
+            ],
+          },
+          {
+            id: 'order-svc',
+            type: 'service',
+            title: 'Order Service',
+            subtitle: 'Go',
+            position: { x: 500, y: 175 },
+            ports: [
+              { id: 'in', type: 'target', side: 'left' },
+              { id: 'queue', type: 'source', side: 'right' },
+            ],
+          },
+          {
+            id: 'product-svc',
+            type: 'service',
+            title: 'Product Service',
+            subtitle: 'Python',
+            position: { x: 500, y: 300 },
+            ports: [
+              { id: 'in', type: 'target', side: 'left' },
+              { id: 'es', type: 'source', side: 'right' },
+            ],
+          },
+          {
+            id: 'user-cache',
+            type: 'database',
+            title: 'User Cache',
+            subtitle: 'Redis',
+            position: { x: 750, y: 50 },
+            ports: [{ id: 'in', type: 'target', side: 'left' }],
+          },
+          {
+            id: 'order-queue',
+            type: 'queue',
+            title: 'Order Queue',
+            subtitle: 'RabbitMQ',
+            position: { x: 750, y: 175 },
+            ports: [
+              { id: 'in', type: 'target', side: 'left' },
+              { id: 'out', type: 'source', side: 'right' },
+            ],
+          },
+          {
+            id: 'search',
+            type: 'database',
+            title: 'Search Index',
+            subtitle: 'Elasticsearch',
+            position: { x: 750, y: 300 },
+            ports: [{ id: 'in', type: 'target', side: 'left' }],
+          },
+        ],
+        edges: [
+          {
+            id: 'mobile-gw',
+            source: 'mobile',
+            sourcePort: 'https',
+            target: 'gateway',
+            targetPort: 'in',
+            label: 'API',
+            animated: true,
+            markerEnd: 'arrow',
+          },
+          {
+            id: 'web-gw',
+            source: 'web',
+            sourcePort: 'https',
+            target: 'gateway',
+            targetPort: 'in',
+            label: 'API',
+            animated: true,
+            markerEnd: 'arrow',
+          },
+          {
+            id: 'gw-users',
+            source: 'gateway',
+            sourcePort: 'users',
+            target: 'user-svc',
+            targetPort: 'in',
+            label: 'REST',
+            markerEnd: 'arrow',
+          },
+          {
+            id: 'gw-orders',
+            source: 'gateway',
+            sourcePort: 'orders',
+            target: 'order-svc',
+            targetPort: 'in',
+            label: 'REST',
+            markerEnd: 'arrow',
+          },
+          {
+            id: 'gw-products',
+            source: 'gateway',
+            sourcePort: 'products',
+            target: 'product-svc',
+            targetPort: 'in',
+            label: 'REST',
+            markerEnd: 'arrow',
+          },
+          {
+            id: 'user-cache',
+            source: 'user-svc',
+            sourcePort: 'cache',
+            target: 'user-cache',
+            targetPort: 'in',
+            label: 'Cache',
+            markerEnd: 'arrow',
+          },
+          {
+            id: 'order-queue',
+            source: 'order-svc',
+            sourcePort: 'queue',
+            target: 'order-queue',
+            targetPort: 'in',
+            label: 'Event',
+            animated: true,
+            markerEnd: 'arrow',
+          },
+          {
+            id: 'product-es',
+            source: 'product-svc',
+            sourcePort: 'es',
+            target: 'search',
+            targetPort: 'in',
+            label: 'Index',
+            markerEnd: 'arrow',
+          },
+        ],
+      };
+
+      const pipelineData = {
+        schemaVersion: '1.0',
+        title: 'Data Pipeline',
+        options: {
+          layout: 'manual',
+          fitView: true,
+          interactive: true,
+          showControls: true,
+          showBackground: true,
+          edgeAnimation: true,
+        },
+        nodes: [
+          { id: 'sources', type: 'group', title: 'Data Sources', position: { x: 0, y: 0 } },
+          {
+            id: 'api-src',
+            type: 'client',
+            title: 'API Events',
+            subtitle: 'REST',
+            position: { x: 50, y: 60 },
+            status: 'healthy',
+            ports: [{ id: 'out', type: 'source', side: 'right', label: 'JSON' }],
+          },
+          {
+            id: 'db-src',
+            type: 'database',
+            title: 'DB CDC',
+            subtitle: 'PostgreSQL',
+            position: { x: 50, y: 160 },
+            status: 'healthy',
+            ports: [{ id: 'out', type: 'source', side: 'right', label: 'WAL' }],
+          },
+          {
+            id: 'kafka',
+            type: 'queue',
+            title: 'Kafka',
+            subtitle: 'Message broker',
+            position: { x: 300, y: 110 },
+            ports: [
+              { id: 'in', type: 'target', side: 'left' },
+              { id: 'out', type: 'source', side: 'right' },
+            ],
+          },
+          {
+            id: 'flink',
+            type: 'service',
+            title: 'Flink',
+            subtitle: 'Stream processor',
+            position: { x: 520, y: 110 },
+            ports: [
+              { id: 'in', type: 'target', side: 'left' },
+              { id: 'raw', type: 'source', side: 'right', offset: 33 },
+              { id: 'enriched', type: 'source', side: 'right', offset: 66 },
+            ],
+          },
+          {
+            id: 'datalake',
+            type: 'database',
+            title: 'Data Lake',
+            subtitle: 'S3',
+            position: { x: 740, y: 50 },
+            ports: [{ id: 'in', type: 'target', side: 'left' }],
+          },
+          {
+            id: 'warehouse',
+            type: 'database',
+            title: 'Warehouse',
+            subtitle: 'BigQuery',
+            position: { x: 740, y: 170 },
+            ports: [{ id: 'in', type: 'target', side: 'left' }],
+          },
+        ],
+        edges: [
+          {
+            id: 'api-kafka',
+            source: 'api-src',
+            sourcePort: 'out',
+            target: 'kafka',
+            targetPort: 'in',
+            label: 'Events',
+            animated: true,
+            markerEnd: 'arrow',
+          },
+          {
+            id: 'db-kafka',
+            source: 'db-src',
+            sourcePort: 'out',
+            target: 'kafka',
+            targetPort: 'in',
+            label: 'CDC',
+            animated: true,
+            markerEnd: 'arrow',
+          },
+          {
+            id: 'kafka-flink',
+            source: 'kafka',
+            sourcePort: 'out',
+            target: 'flink',
+            targetPort: 'in',
+            label: 'Stream',
+            animated: true,
+            markerEnd: 'arrow',
+          },
+          {
+            id: 'flink-lake',
+            source: 'flink',
+            sourcePort: 'raw',
+            target: 'datalake',
+            targetPort: 'in',
+            label: 'Raw',
+            markerEnd: 'arrow',
+          },
+          {
+            id: 'flink-wh',
+            source: 'flink',
+            sourcePort: 'enriched',
+            target: 'warehouse',
+            targetPort: 'in',
+            label: 'Enriched',
+            markerEnd: 'arrow',
+          },
+        ],
+      };
+
+      function loadMicroservices() {
+        const el = document.getElementById('demo-e');
+        el.setData(microservicesData);
+      }
+
+      function loadPipeline() {
+        const el = document.getElementById('demo-e');
+        el.setData(pipelineData);
+      }
+
+      function clearData(id) {
+        const el = document.getElementById(id);
+        el.data = null;
+      }
+
+      function reloadSrc(id) {
+        document.getElementById(id).reload();
+      }
+
+      function fitView(id) {
+        document.getElementById(id).fitViewAsync();
+      }
+
+      function resetViewport(id) {
+        document.getElementById(id).resetViewport();
+      }
+    </script>
+  </body>
 </html>

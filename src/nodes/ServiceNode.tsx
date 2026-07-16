@@ -14,17 +14,31 @@ export const ServiceNode = memo(function ServiceNode({ data, selected }: NodePro
   const badges = (data['badges'] as string[] | undefined) ?? [];
 
   return (
-    <div className={`af-node ${selected ? 'selected' : ''}`} role="button" tabIndex={0} aria-label={`Service: ${String(data['label'])}`}>
+    <div
+      className={`af-node ${selected ? 'selected' : ''}`}
+      role="button"
+      tabIndex={0}
+      aria-label={`Service: ${String(data['label'])}`}
+    >
       <Handle type="target" position={Position.Left} className="af-handle" />
-      <div className="af-node__header" style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
+      <div
+        className="af-node__header"
+        style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}
+      >
         <span className="af-status-dot" style={{ background: STATUS_COLORS[status] }} />
         <span style={{ fontSize: 16, marginRight: 6 }}>&#9634;</span>
         <span className="af-node__title">{String(data['label'])}</span>
       </div>
-      {!!data['subtitle'] && <p className="af-node__subtitle">{String(data['subtitle'] as string)}</p>}
+      {!!data['subtitle'] && (
+        <p className="af-node__subtitle">{String(data['subtitle'] as string)}</p>
+      )}
       {badges.length > 0 && (
         <div className="af-node__badges">
-          {badges.map(b => <span key={b} className="af-badge">{b}</span>)}
+          {badges.map((b) => (
+            <span key={b} className="af-badge">
+              {b}
+            </span>
+          ))}
         </div>
       )}
       <Handle type="source" position={Position.Right} className="af-handle" />

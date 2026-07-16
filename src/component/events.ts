@@ -25,7 +25,7 @@ export function emitCustomEvent<T>(
   target: HTMLElement,
   name: string,
   detail: T,
-  options?: Partial<CustomEventInit<T>>
+  options?: Partial<CustomEventInit<T>>,
 ): void {
   target.dispatchEvent(
     new CustomEvent(name, {
@@ -33,6 +33,6 @@ export function emitCustomEvent<T>(
       bubbles: true,
       composed: true,
       ...options,
-    })
+    }),
   );
 }

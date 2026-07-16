@@ -22,5 +22,5 @@ export default tseslint.config(
       'react/no-unknown-property': ['error', { ignore: ['class'] }],
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     },
-  }
+  },
 );

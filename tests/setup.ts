@@ -1,14 +1,24 @@
-import { expect, it, describe, vi } from 'vitest';
-import * as matchers from '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
-expect.extend(matchers);
+declare global {
+  interface ResizeObserver {
+    observe(): void;
+    unobserve(): void;
+    disconnect(): void;
+  }
+}
 
 // Polyfill ResizeObserver for jsdom
-global.ResizeObserver = class ResizeObserver {
+const resizeObserverPolyfill = class ResizeObserver {
   observe() {}
   unobserve() {}
   disconnect() {}
 };
+Object.defineProperty(globalThis, 'ResizeObserver', {
+  value: resizeObserverPolyfill,
+  writable: true,
+  configurable: true,
+});
 
 // Polyfill matchMedia for jsdom - must be set as a direct property before component initialization
 const mockMatchMedia = (query: string) => ({

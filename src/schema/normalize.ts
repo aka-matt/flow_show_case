@@ -1,11 +1,9 @@
 import type {
   ArchitectureDocument,
   ArchitectureNode,
-  ArchitectureEdge,
   NormalizedNode,
   NormalizedEdge,
   NormalizedGraph,
-  LayoutType,
 } from './architecture-document.js';
 import { applyManualLayout } from '../layout/manual-layout.js';
 import { simpleHorizontalLayout, simpleVerticalLayout } from '../layout/simple-layered-layout.js';
@@ -38,9 +36,7 @@ export function normalizeNodes(doc: ArchitectureDocument): NormalizedNode[] {
 
   return doc.nodes.map((node): NormalizedNode => {
     const ports = node.ports ?? [];
-    const portData = ports.length > 0
-      ? { ports: ports.map(p => ({ ...p })) }
-      : {};
+    const portData = ports.length > 0 ? { ports: ports.map((p) => ({ ...p })) } : {};
 
     return {
       id: node.id,
@@ -56,16 +52,16 @@ export function normalizeNodes(doc: ArchitectureDocument): NormalizedNode[] {
         metadata: node.metadata ?? {},
         ...portData,
       },
-      width: node.width,
-      height: node.height,
-      className: node.className,
-      style: node.style,
+      ...(node.width !== undefined && { width: node.width }),
+      ...(node.height !== undefined && { height: node.height }),
+      ...(node.className !== undefined && { className: node.className }),
+      ...(node.style !== undefined && { style: node.style }),
     };
   });
 }
 
 export function normalizeEdges(doc: ArchitectureDocument): NormalizedEdge[] {
-  const nodeIds = new Set(doc.nodes.map(n => n.id));
+  const nodeIds = new Set(doc.nodes.map((n) => n.id));
 
   return doc.edges.map((edge): NormalizedEdge => {
     if (!nodeIds.has(edge.source)) {
@@ -78,19 +74,18 @@ export function normalizeEdges(doc: ArchitectureDocument): NormalizedEdge[] {
     return {
       id: edge.id,
       source: edge.source,
-      sourceHandle: edge.sourcePort,
+      ...(edge.sourcePort !== undefined && { sourceHandle: edge.sourcePort }),
       target: edge.target,
-      targetHandle: edge.targetPort,
-      label: edge.label,
+      ...(edge.targetPort !== undefined && { targetHandle: edge.targetPort }),
+      ...(edge.label !== undefined && { label: edge.label }),
       type: mapEdgeType(edge.type),
       animated: edge.animated ?? false,
-      markerEnd: edge.markerEnd === 'arrow' ? 'url(#arrow)' : undefined,
+      ...(edge.markerEnd === 'arrow' && { markerEnd: 'url(#arrow)' }),
       data: {
-        label: edge.label,
+        ...(edge.label !== undefined && { label: edge.label }),
         status: edge.status ?? 'default',
         ...(edge.metadata ? { metadata: edge.metadata } : {}),
       },
-      className: edge.className,
     };
   });
 }

@@ -3,10 +3,7 @@ export interface AbortControllerRef {
   abort: () => void;
 }
 
-let counter = 0;
-
 export function createAbortController(): AbortControllerRef {
-  const id = ++counter;
   let aborted = false;
   let controller: AbortController | null = new AbortController();
 

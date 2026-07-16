@@ -8,16 +8,14 @@ const SIMPLE_DOC: ArchitectureDocument = {
     { id: 'web', type: 'client', title: 'Web Client', position: { x: 0, y: 0 } },
     { id: 'api', type: 'service', title: 'API', position: { x: 200, y: 0 } },
   ],
-  edges: [
-    { id: 'e1', source: 'web', target: 'api', label: 'HTTPS' },
-  ],
+  edges: [{ id: 'e1', source: 'web', target: 'api', label: 'HTTPS' }],
 };
 
 describe('normalize', () => {
   it('maps node types correctly', () => {
     const { nodes } = normalize(SIMPLE_DOC);
-    expect(nodes[0].type).toBe('client');
-    expect(nodes[1].type).toBe('service');
+    expect(nodes[0]!.type).toBe('client');
+    expect(nodes[1]!.type).toBe('service');
   });
 
   it('maps unknown node type to generic', () => {
@@ -26,7 +24,7 @@ describe('normalize', () => {
       nodes: [{ id: 'x', title: 'X', type: 'unknown' as never }],
       edges: [],
     };
-    expect(normalize(doc).nodes[0].type).toBe('generic');
+    expect(normalize(doc).nodes[0]!.type).toBe('generic');
   });
 
   it('defaults position to {x:0, y:0}', () => {
@@ -35,7 +33,7 @@ describe('normalize', () => {
       nodes: [{ id: 'x', title: 'X' }],
       edges: [],
     };
-    expect(normalize(doc).nodes[0].position).toEqual({ x: 0, y: 0 });
+    expect(normalize(doc).nodes[0]!.position).toEqual({ x: 0, y: 0 });
   });
 
   it('throws when edge source node missing', () => {
@@ -59,17 +57,19 @@ describe('normalize', () => {
   it('passes port data through node data', () => {
     const doc: ArchitectureDocument = {
       schemaVersion: '1.0',
-      nodes: [{
-        id: 'svc',
-        title: 'Service',
-        ports: [
-          { id: 'in', type: 'target', side: 'left' },
-          { id: 'out', type: 'source', side: 'right' },
-        ],
-      }],
+      nodes: [
+        {
+          id: 'svc',
+          title: 'Service',
+          ports: [
+            { id: 'in', type: 'target', side: 'left' },
+            { id: 'out', type: 'source', side: 'right' },
+          ],
+        },
+      ],
       edges: [],
     };
     const { nodes } = normalize(doc);
-    expect(nodes[0].data['ports']).toHaveLength(2);
+    expect(nodes[0]!.data['ports']).toHaveLength(2);
   });
 });

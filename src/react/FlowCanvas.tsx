@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo } from 'react';
 import {
   ReactFlow,
   Background,
@@ -33,7 +33,16 @@ interface FlowCanvasProps {
   containerRef?: React.RefObject<HTMLDivElement | null>;
 }
 
-export function FlowCanvas({ nodes, edges, options, onNodeClick, onEdgeClick, onMoveEnd, onInit, containerRef }: FlowCanvasProps): React.ReactElement {
+export function FlowCanvas({
+  nodes,
+  edges,
+  options,
+  onNodeClick,
+  onEdgeClick,
+  onMoveEnd,
+  onInit,
+  containerRef,
+}: FlowCanvasProps): React.ReactElement {
   const {
     interactive = false,
     fitView = true,
@@ -42,12 +51,16 @@ export function FlowCanvas({ nodes, edges, options, onNodeClick, onEdgeClick, on
     showMiniMap = false,
   } = options ?? {};
 
-  const defaultEdgeOptions = useMemo(() => ({
-    type: 'smoothstep',
-    animated: false,
-  }), []);
+  const defaultEdgeOptions = useMemo(
+    () => ({
+      type: 'smoothstep',
+      animated: false,
+    }),
+    [],
+  );
 
-  const reactFlowProps: ReactFlowProps = {
+  // Build ReactFlow props conditionally to satisfy exactOptionalPropertyTypes
+  const rfProps: ReactFlowProps = {
     nodes,
     edges,
     nodeTypes,
@@ -62,20 +75,30 @@ export function FlowCanvas({ nodes, edges, options, onNodeClick, onEdgeClick, on
     fitViewOptions: { padding: 0.2 },
     minZoom: 0.1,
     maxZoom: 2,
-    onNodeClick: onNodeClick as ReactFlowProps['onNodeClick'],
-    onEdgeClick: onEdgeClick as ReactFlowProps['onEdgeClick'],
-    onMoveEnd: onMoveEnd as ReactFlowProps['onMoveEnd'],
-    onInit: (instance) => {
-      // Store the ReactFlow instance ref for fitView access
-      if (containerRef?.current) {
-        (containerRef.current as unknown as { _rfInstance?: unknown })._rfInstance = instance;
-      }
-      onInit?.(instance);
-    },
+  };
+
+  if (onNodeClick) {
+    (rfProps as Record<string, unknown>).onNodeClick =
+      onNodeClick as unknown as ReactFlowProps['onNodeClick'];
+  }
+  if (onEdgeClick) {
+    (rfProps as Record<string, unknown>).onEdgeClick =
+      onEdgeClick as unknown as ReactFlowProps['onEdgeClick'];
+  }
+  if (onMoveEnd) {
+    (rfProps as Record<string, unknown>).onMoveEnd =
+      onMoveEnd as unknown as ReactFlowProps['onMoveEnd'];
+  }
+
+  const handleInit = (instance: unknown): void => {
+    if (containerRef?.current) {
+      (containerRef.current as unknown as { _rfInstance?: unknown })._rfInstance = instance;
+    }
+    onInit?.(instance);
   };
 
   return (
-    <ReactFlow {...reactFlowProps}>
+    <ReactFlow {...rfProps} onInit={handleInit}>
       {showBackground && <Background variant={BackgroundVariant.Dots} gap={20} size={1} />}
       {showControls && <Controls />}
       {showMiniMap && <MiniMap />}

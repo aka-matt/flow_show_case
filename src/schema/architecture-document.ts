@@ -1,4 +1,5 @@
-export type ArchitectureNodeType = 'service' | 'database' | 'queue' | 'client' | 'group' | 'generic';
+export type ArchitectureNodeType =
+  'service' | 'database' | 'queue' | 'client' | 'group' | 'generic';
 
 export type NodeStatus = 'default' | 'healthy' | 'warning' | 'error' | 'disabled';
 

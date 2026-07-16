@@ -17,9 +17,7 @@
       "subtitle": "Global delivery",
       "position": { "x": 0, "y": 200 },
       "status": "healthy",
-      "ports": [
-        { "id": "https", "type": "source", "side": "right", "label": "HTTPS" }
-      ]
+      "ports": [{ "id": "https", "type": "source", "side": "right", "label": "HTTPS" }]
     },
     {
       "id": "lb",
@@ -98,9 +96,7 @@
       "title": "User Cache",
       "subtitle": "Redis",
       "position": { "x": 950, "y": 60 },
-      "ports": [
-        { "id": "conn", "type": "target", "side": "left" }
-      ]
+      "ports": [{ "id": "conn", "type": "target", "side": "left" }]
     },
     {
       "id": "user-db",
@@ -108,9 +104,7 @@
       "title": "User DB",
       "subtitle": "PostgreSQL",
       "position": { "x": 950, "y": 120 },
-      "ports": [
-        { "id": "conn", "type": "target", "side": "left" }
-      ]
+      "ports": [{ "id": "conn", "type": "target", "side": "left" }]
     },
     {
       "id": "product-cache",
@@ -118,9 +112,7 @@
       "title": "Product Cache",
       "subtitle": "Redis",
       "position": { "x": 950, "y": 340 },
-      "ports": [
-        { "id": "conn", "type": "target", "side": "left" }
-      ]
+      "ports": [{ "id": "conn", "type": "target", "side": "left" }]
     },
     {
       "id": "product-db",
@@ -128,9 +120,7 @@
       "title": "Product DB",
       "subtitle": "MongoDB",
       "position": { "x": 950, "y": 400 },
-      "ports": [
-        { "id": "conn", "type": "target", "side": "left" }
-      ]
+      "ports": [{ "id": "conn", "type": "target", "side": "left" }]
     },
     {
       "id": "order-queue",
@@ -149,9 +139,7 @@
       "title": "Payment Gateway",
       "subtitle": "Stripe API",
       "position": { "x": 950, "y": 480 },
-      "ports": [
-        { "id": "in", "type": "target", "side": "left" }
-      ]
+      "ports": [{ "id": "in", "type": "target", "side": "left" }]
     }
   ],
   "edges": [

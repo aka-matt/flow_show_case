@@ -9,7 +9,7 @@ export interface PendingProperty {
  */
 export function collectPendingProperties(
   element: HTMLElement,
-  propertyNames: string[]
+  propertyNames: string[],
 ): PendingProperty[] {
   const collected: PendingProperty[] = [];
   for (const name of propertyNames) {

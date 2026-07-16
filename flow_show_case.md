@@ -192,21 +192,21 @@ if (!customElements.get('architecture-flow')) {
 
 ### 6.2 HTML Attributes
 
-| 属性 | 类型 | 默认值 | 说明 |
-|---|---|---:|---|
-| `src` | string | 无 | 外部 JSON URL |
-| `height` | CSS length | `600px` | 组件高度 |
-| `theme` | `light\|dark\|system` | `system` | 色彩模式 |
-| `palette` | string | `blue` | 配色方案 |
-| `interactive` | boolean attribute | false | 启用节点拖动、画布平移和缩放 |
-| `fit-view` | boolean attribute | true | 首次加载后自动适配视图 |
-| `show-controls` | boolean attribute | true | 显示缩放控制器 |
-| `show-background` | boolean attribute | true | 显示网格背景 |
-| `show-minimap` | boolean attribute | false | 显示小地图 |
-| `readonly` | boolean attribute | true | 禁止图结构修改；第一版始终视为 true |
-| `loading-text` | string | `正在加载架构图…` | 加载提示 |
-| `empty-text` | string | `暂无架构数据` | 空状态提示 |
-| `aria-label` | string | `Architecture diagram` | 可访问性名称 |
+| 属性              | 类型                  |                 默认值 | 说明                                |
+| ----------------- | --------------------- | ---------------------: | ----------------------------------- |
+| `src`             | string                |                     无 | 外部 JSON URL                       |
+| `height`          | CSS length            |                `600px` | 组件高度                            |
+| `theme`           | `light\|dark\|system` |               `system` | 色彩模式                            |
+| `palette`         | string                |                 `blue` | 配色方案                            |
+| `interactive`     | boolean attribute     |                  false | 启用节点拖动、画布平移和缩放        |
+| `fit-view`        | boolean attribute     |                   true | 首次加载后自动适配视图              |
+| `show-controls`   | boolean attribute     |                   true | 显示缩放控制器                      |
+| `show-background` | boolean attribute     |                   true | 显示网格背景                        |
+| `show-minimap`    | boolean attribute     |                  false | 显示小地图                          |
+| `readonly`        | boolean attribute     |                   true | 禁止图结构修改；第一版始终视为 true |
+| `loading-text`    | string                |      `正在加载架构图…` | 加载提示                            |
+| `empty-text`      | string                |         `暂无架构数据` | 空状态提示                          |
+| `aria-label`      | string                | `Architecture diagram` | 可访问性名称                        |
 
 布尔属性采用 HTML 标准语义：出现即为 true，缺失即为 false。
 
@@ -253,19 +253,19 @@ new CustomEvent(name, {
 
 `composed: true` 确保事件可以穿过 Shadow DOM 边界。
 
-| 事件名 | detail |
-|---|---|
-| `flow-ready` | `{ instance, data }` |
-| `flow-loading` | `{ src }` |
-| `flow-loaded` | `{ source, data }` |
-| `flow-error` | `{ code, message, error? }` |
-| `node-click` | `{ node, originalEvent }` |
-| `node-double-click` | `{ node, originalEvent }` |
-| `edge-click` | `{ edge, originalEvent }` |
-| `selection-change` | `{ nodes, edges }` |
-| `viewport-change` | `{ x, y, zoom }` |
-| `data-change` | `{ data, reason }` |
-| `theme-change` | `{ requestedTheme, resolvedTheme, palette }` |
+| 事件名              | detail                                       |
+| ------------------- | -------------------------------------------- |
+| `flow-ready`        | `{ instance, data }`                         |
+| `flow-loading`      | `{ src }`                                    |
+| `flow-loaded`       | `{ source, data }`                           |
+| `flow-error`        | `{ code, message, error? }`                  |
+| `node-click`        | `{ node, originalEvent }`                    |
+| `node-double-click` | `{ node, originalEvent }`                    |
+| `edge-click`        | `{ edge, originalEvent }`                    |
+| `selection-change`  | `{ nodes, edges }`                           |
+| `viewport-change`   | `{ x, y, zoom }`                             |
+| `data-change`       | `{ data, reason }`                           |
+| `theme-change`      | `{ requestedTheme, resolvedTheme, palette }` |
 
 事件 detail 不应泄露 React SyntheticEvent；应转换为浏览器原生事件或精简对象。
 
@@ -307,13 +307,7 @@ interface ArchitectureOptions {
 ### 7.3 Node
 
 ```ts
-type ArchitectureNodeType =
-  | 'service'
-  | 'database'
-  | 'queue'
-  | 'client'
-  | 'group'
-  | 'generic';
+type ArchitectureNodeType = 'service' | 'database' | 'queue' | 'client' | 'group' | 'generic';
 
 interface ArchitectureNode {
   id: string;
@@ -408,11 +402,13 @@ const shadowRoot = this.attachShadow({ mode: 'open' });
 ```html
 <architecture-flow>
   #shadow-root
-    <style>...</style>
-    <div part="container" class="af-host">
-      <div part="canvas" class="af-canvas"></div>
-      <div part="status" class="af-status"></div>
-    </div>
+  <style>
+    ...
+  </style>
+  <div part="container" class="af-host">
+    <div part="canvas" class="af-canvas"></div>
+    <div part="status" class="af-status"></div>
+  </div>
 </architecture-flow>
 ```
 
@@ -484,7 +480,7 @@ style.textContent = `${reactFlowCss}\n${componentCss}`;
 `system` 模式必须使用：
 
 ```ts
-window.matchMedia('(prefers-color-scheme: dark)')
+window.matchMedia('(prefers-color-scheme: dark)');
 ```
 
 并监听 `change` 事件。组件销毁时移除监听。
@@ -579,9 +575,7 @@ type ResolvedTheme = 'light' | 'dark';
 允许宿主直接覆盖 CSS Variables：
 
 ```html
-<architecture-flow
-  style="--af-color-primary:#e11d48;--af-radius-node:18px">
-</architecture-flow>
+<architecture-flow style="--af-color-primary:#e11d48;--af-radius-node:18px"> </architecture-flow>
 ```
 
 宿主自定义变量的优先级高于内置 Palette。
@@ -887,7 +881,8 @@ defineArchitectureFlow('architecture-flow');
   palette="blue"
   interactive
   fit-view
-  show-controls>
+  show-controls
+>
 </architecture-flow>
 ```
 
@@ -960,9 +955,16 @@ Palette: blue / indigo / teal / violet / slate / amber
 宿主页面故意设置：
 
 ```css
-* { box-sizing: content-box; }
-button { font-size: 40px; border: 8px solid red; }
-svg { fill: hotpink; }
+* {
+  box-sizing: content-box;
+}
+button {
+  font-size: 40px;
+  border: 8px solid red;
+}
+svg {
+  fill: hotpink;
+}
 ```
 
 组件内部仍应正常显示。这些污染规则可放在专门测试容器中，避免整个示例不可用。
@@ -970,9 +972,7 @@ svg { fill: hotpink; }
 ### 示例 I：CSS Variables 覆盖
 
 ```html
-<architecture-flow
-  style="--af-color-primary:#e11d48;--af-radius-node:20px">
-</architecture-flow>
+<architecture-flow style="--af-color-primary:#e11d48;--af-radius-node:20px"> </architecture-flow>
 ```
 
 ### 示例 J：错误处理
@@ -1260,9 +1260,7 @@ Aside / Bottom
       "subtitle": "React SPA",
       "position": { "x": 0, "y": 120 },
       "status": "healthy",
-      "ports": [
-        { "id": "https", "type": "source", "side": "right", "label": "HTTPS" }
-      ]
+      "ports": [{ "id": "https", "type": "source", "side": "right", "label": "HTTPS" }]
     },
     {
       "id": "gateway",
@@ -1297,9 +1295,7 @@ Aside / Bottom
       "title": "Orders DB",
       "subtitle": "PostgreSQL",
       "position": { "x": 920, "y": 20 },
-      "ports": [
-        { "id": "sql", "type": "target", "side": "left" }
-      ]
+      "ports": [{ "id": "sql", "type": "target", "side": "left" }]
     },
     {
       "id": "event-bus",
@@ -1307,9 +1303,7 @@ Aside / Bottom
       "title": "Event Bus",
       "subtitle": "Kafka",
       "position": { "x": 920, "y": 210 },
-      "ports": [
-        { "id": "produce", "type": "target", "side": "left" }
-      ]
+      "ports": [{ "id": "produce", "type": "target", "side": "left" }]
     }
   ],
   "edges": [

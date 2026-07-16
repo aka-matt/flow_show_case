@@ -1,10 +1,5 @@
 import React, { memo } from 'react';
-import {
-  type EdgeProps,
-  BaseEdge,
-  EdgeLabelRenderer,
-  getBezierPath,
-} from '@xyflow/react';
+import { type EdgeProps, BaseEdge, EdgeLabelRenderer, getBezierPath } from '@xyflow/react';
 
 const STATUS_COLORS: Record<string, string> = {
   default: 'var(--af-color-edge)',
@@ -38,7 +33,8 @@ export const ArchitectureEdge = memo(function ArchitectureEdge({
   const status = String(data?.['status'] ?? 'default');
   const color = selected ? 'var(--af-color-edge-active)' : STATUS_COLORS[status];
   const label = data?.['label'];
-  const reducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reducedMotion =
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   return (
     <>

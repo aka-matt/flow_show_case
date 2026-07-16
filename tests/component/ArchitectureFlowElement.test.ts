@@ -35,16 +35,16 @@ describe('ArchitectureFlowElement', () => {
   it('fires flow-error with composed:true', async () => {
     const el = document.createElement('architecture-flow');
     const events: CustomEvent[] = [];
-    el.addEventListener('flow-error', e => events.push(e as CustomEvent));
+    el.addEventListener('flow-error', (e) => events.push(e as CustomEvent));
     el.setData({ schemaVersion: '99.0', nodes: [], edges: [] } as never);
     document.body.appendChild(el);
 
     // Wait for validation to complete
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
     expect(events.length).toBeGreaterThan(0);
-    expect(events[0].composed).toBe(true);
-    expect(events[0].bubbles).toBe(true);
+    expect(events[0]!.composed).toBe(true);
+    expect(events[0]!.bubbles).toBe(true);
     el.remove();
   });
 

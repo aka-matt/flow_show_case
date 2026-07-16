@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import React, { memo } from 'react';
 import { type NodeProps, Handle, Position } from '@xyflow/react';
 
 export const GenericNode = memo(function GenericNode({ data, selected }: NodeProps) {

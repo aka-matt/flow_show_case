@@ -48,20 +48,24 @@ export function ArchitectureFlowApp({
 
   switch (state) {
     case 'loading':
-      return React.createElement(LoadingView, { text: loadingText });
+      return React.createElement(LoadingView, {
+        ...(loadingText !== undefined && { text: loadingText }),
+      });
     case 'error':
-      return React.createElement(ErrorView, { message: errorMessage });
+      return React.createElement(ErrorView, { message: errorMessage ?? 'Unknown error' });
     case 'empty':
-      return React.createElement(EmptyView, { text: emptyText });
+      return React.createElement(EmptyView, {
+        ...(emptyText !== undefined && { text: emptyText }),
+      });
     default:
       return React.createElement(FlowCanvas, {
         nodes: nodes as Node[],
         edges: edges as Edge[],
-        options,
-        onNodeClick,
-        onEdgeClick,
-        onMoveEnd,
-        onInit,
+        ...(options !== undefined && { options }),
+        ...(onNodeClick !== undefined && { onNodeClick }),
+        ...(onEdgeClick !== undefined && { onEdgeClick }),
+        ...(onMoveEnd !== undefined && { onMoveEnd }),
+        ...(onInit !== undefined && { onInit }),
         containerRef,
       });
   }

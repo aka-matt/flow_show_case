@@ -54,58 +54,125 @@ export class ArchitectureFlowElement extends HTMLElement {
 
   constructor() {
     super();
-    const pending = (this as unknown as { _pendingProperties?: Array<{ name: string; value: unknown }> })._pendingProperties ?? [];
+    const pending =
+      (this as unknown as { _pendingProperties?: Array<{ name: string; value: unknown }> })
+        ._pendingProperties ?? [];
     (this as unknown as { _pendingProperties: typeof pending })._pendingProperties = pending;
   }
 
   static get observedAttributes(): string[] {
     return [
-      'src', 'height', 'theme', 'palette', 'interactive', 'fit-view',
-      'show-controls', 'show-background', 'show-minimap', 'readonly',
-      'loading-text', 'empty-text', 'aria-label',
+      'src',
+      'height',
+      'theme',
+      'palette',
+      'interactive',
+      'fit-view',
+      'show-controls',
+      'show-background',
+      'show-minimap',
+      'readonly',
+      'loading-text',
+      'empty-text',
+      'aria-label',
     ];
   }
 
   // Properties
-  get data(): unknown { return this._data; }
+  get data(): unknown {
+    return this._data;
+  }
   set data(v: unknown) {
     this._data = v as ArchitectureDocument | null;
     this._onDataSet(v);
   }
 
-  get theme(): 'light' | 'dark' | 'system' { return this._theme; }
-  set theme(v: 'light' | 'dark' | 'system') { this._theme = v; this._resolveAndApplyTheme(); }
+  get theme(): 'light' | 'dark' | 'system' {
+    return this._theme;
+  }
+  set theme(v: 'light' | 'dark' | 'system') {
+    this._theme = v;
+    this._resolveAndApplyTheme();
+  }
 
-  get palette(): string { return this._palette; }
-  set palette(v: string) { this._palette = v; this._applyCssVariables(); }
+  get palette(): string {
+    return this._palette;
+  }
+  set palette(v: string) {
+    this._palette = v;
+    this._applyCssVariables();
+  }
 
-  get interactive(): boolean { return this._interactive; }
-  set interactive(v: boolean) { this._interactive = v; this._renderReact(); }
+  get interactive(): boolean {
+    return this._interactive;
+  }
+  set interactive(v: boolean) {
+    this._interactive = v;
+    this._renderReact();
+  }
 
-  get fitView(): boolean { return this._fitView; }
-  set fitView(v: boolean) { this._fitView = v; this._renderReact(); }
+  get fitView(): boolean {
+    return this._fitView;
+  }
+  set fitView(v: boolean) {
+    this._fitView = v;
+    this._renderReact();
+  }
 
-  get showControls(): boolean { return this._showControls; }
-  set showControls(v: boolean) { this._showControls = v; this._renderReact(); }
+  get showControls(): boolean {
+    return this._showControls;
+  }
+  set showControls(v: boolean) {
+    this._showControls = v;
+    this._renderReact();
+  }
 
-  get showBackground(): boolean { return this._showBackground; }
-  set showBackground(v: boolean) { this._showBackground = v; this._renderReact(); }
+  get showBackground(): boolean {
+    return this._showBackground;
+  }
+  set showBackground(v: boolean) {
+    this._showBackground = v;
+    this._renderReact();
+  }
 
-  get showMiniMap(): boolean { return this._showMiniMap; }
-  set showMiniMap(v: boolean) { this._showMiniMap = v; this._renderReact(); }
+  get showMiniMap(): boolean {
+    return this._showMiniMap;
+  }
+  set showMiniMap(v: boolean) {
+    this._showMiniMap = v;
+    this._renderReact();
+  }
 
-  get readonly(): boolean { return this._readonly; }
-  set readonly(v: boolean) { this._readonly = v; }
+  get readonly(): boolean {
+    return this._readonly;
+  }
+  set readonly(v: boolean) {
+    this._readonly = v;
+  }
 
-  get loadingText(): string { return this._loadingText; }
-  set loadingText(v: string) { this._loadingText = v; this._renderReact(); }
+  get loadingText(): string {
+    return this._loadingText;
+  }
+  set loadingText(v: string) {
+    this._loadingText = v;
+    this._renderReact();
+  }
 
-  get emptyText(): string { return this._emptyText; }
-  set emptyText(v: string) { this._emptyText = v; this._renderReact(); }
+  get emptyText(): string {
+    return this._emptyText;
+  }
+  set emptyText(v: string) {
+    this._emptyText = v;
+    this._renderReact();
+  }
 
   // Override HTMLElement.ariaLabel
-  override get ariaLabel(): string { return this._ariaLabel; }
-  override set ariaLabel(v: string) { this._ariaLabel = v; }
+  override get ariaLabel(): string {
+    return this._ariaLabel;
+  }
+  override set ariaLabel(v: string) {
+    this._ariaLabel = v;
+  }
 
   // Private fields used in getters/setters but not initialized
   private _readonly: boolean = true;
@@ -113,8 +180,11 @@ export class ArchitectureFlowElement extends HTMLElement {
   // Public methods
   fitViewAsync(options?: { padding?: number; duration?: number }): Promise<void> {
     const padding = options?.padding ?? 0.2;
-    if (this._rfInstance && typeof (this._rfInstance as Record<string, unknown>).fitView === 'function') {
-      return (this._rfInstance as Record<string, (opts: unknown) => Promise<void>>).fitView({ padding, duration: options?.duration });
+    if (this._rfInstance) {
+      const rf = this._rfInstance as { fitView?: (opts: unknown) => Promise<void> };
+      if (typeof rf.fitView === 'function') {
+        return rf.fitView({ padding, duration: options?.duration });
+      }
     }
     return Promise.resolve();
   }
@@ -350,7 +420,7 @@ export class ArchitectureFlowElement extends HTMLElement {
           this._rfInstance = instance;
           emitCustomEvent(this, EVENT_FLOW_READY, { instance, data: this._data });
         },
-      })
+      }),
     );
   }
 
@@ -404,20 +474,29 @@ export class ArchitectureFlowElement extends HTMLElement {
     const paletteName = (this._palette as PaletteName) ?? 'blue';
     const palette = getPalette(paletteName);
     const resolved = this._resolvedTheme as ResolvedTheme;
-    const tokens = this._theme === 'dark'
-      ? palette.dark
-      : (this._theme === 'light' ? palette.light : (window.matchMedia('(prefers-color-scheme: dark)').matches ? palette.dark : palette.light));
+    const tokens =
+      this._theme === 'dark'
+        ? palette.dark
+        : this._theme === 'light'
+          ? palette.light
+          : window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? palette.dark
+            : palette.light;
 
     // Override with host inline styles (CSS variables set on element.style)
     const hostStyle = this.style;
     const css = buildCssVariables(
       {
         ...tokens,
-        colorPrimary: String(hostStyle.getPropertyValue('--af-color-primary') || tokens.colorPrimary),
+        colorPrimary: String(
+          hostStyle.getPropertyValue('--af-color-primary') || tokens.colorPrimary,
+        ),
         colorBg: String(hostStyle.getPropertyValue('--af-color-bg') || tokens.colorBg),
-        colorSurface: String(hostStyle.getPropertyValue('--af-color-surface') || tokens.colorSurface),
+        colorSurface: String(
+          hostStyle.getPropertyValue('--af-color-surface') || tokens.colorSurface,
+        ),
       },
-      resolved
+      resolved,
     );
 
     // Inject/update style tag in shadow root
@@ -463,7 +542,9 @@ export class ArchitectureFlowElement extends HTMLElement {
   }
 
   private _applyPendingProperties(): void {
-    const pending = (this as unknown as { _pendingProperties?: Array<{ name: string; value: unknown }> })._pendingProperties ?? [];
+    const pending =
+      (this as unknown as { _pendingProperties?: Array<{ name: string; value: unknown }> })
+        ._pendingProperties ?? [];
     for (const { name, value } of pending) {
       (this as Record<string, unknown>)[name] = value;
     }

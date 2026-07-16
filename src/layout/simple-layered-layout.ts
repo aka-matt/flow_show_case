@@ -1,4 +1,9 @@
-import type { ArchitectureDocument, NormalizedGraph, NormalizedNode, NormalizedEdge } from '../schema/architecture-document.js';
+import type {
+  ArchitectureDocument,
+  NormalizedGraph,
+  NormalizedNode,
+  NormalizedEdge,
+} from '../schema/architecture-document.js';
 
 const DEFAULT_NODE_WIDTH = 200;
 const DEFAULT_NODE_HEIGHT = 80;
@@ -39,7 +44,7 @@ function assignLayers(doc: ArchitectureDocument): Map<string, number> {
     // Find all nodes this node points to
     for (const edge of doc.edges) {
       if (edge.source === current) {
-        const targetLayer = (layers.get(edge.target) ?? -1);
+        const targetLayer = layers.get(edge.target) ?? -1;
         const newLayer = currentLayer + 1;
         if (newLayer > targetLayer) {
           layers.set(edge.target, newLayer);
@@ -63,7 +68,10 @@ function assignLayers(doc: ArchitectureDocument): Map<string, number> {
   return layers;
 }
 
-function normalizeWithLayout(doc: ArchitectureDocument, nodePositions: Map<string, { x: number; y: number }>): NormalizedGraph {
+function normalizeWithLayout(
+  doc: ArchitectureDocument,
+  nodePositions: Map<string, { x: number; y: number }>,
+): NormalizedGraph {
   const nodeMap = new Map<string, ArchitectureDocument['nodes'][0]>();
   for (const node of doc.nodes) {
     nodeMap.set(node.id, node);
@@ -86,12 +94,12 @@ function normalizeWithLayout(doc: ArchitectureDocument, nodePositions: Map<strin
       },
       width: node.width ?? DEFAULT_NODE_WIDTH,
       height: node.height ?? DEFAULT_NODE_HEIGHT,
-      className: node.className,
-      style: node.style,
+      ...(node.className !== undefined && { className: node.className }),
+      ...(node.style !== undefined && { style: node.style }),
     };
   });
 
-  const nodeIds = new Set(doc.nodes.map(n => n.id));
+  const nodeIds = new Set(doc.nodes.map((n) => n.id));
   const normalizedEdges: NormalizedEdge[] = doc.edges.map((edge) => {
     if (!nodeIds.has(edge.source)) {
       throw new Error(`edges[?].source references missing node: ${edge.source}`);
@@ -103,19 +111,18 @@ function normalizeWithLayout(doc: ArchitectureDocument, nodePositions: Map<strin
     return {
       id: edge.id,
       source: edge.source,
-      sourceHandle: edge.sourcePort,
+      ...(edge.sourcePort !== undefined && { sourceHandle: edge.sourcePort }),
       target: edge.target,
-      targetHandle: edge.targetPort,
-      label: edge.label,
+      ...(edge.targetPort !== undefined && { targetHandle: edge.targetPort }),
+      ...(edge.label !== undefined && { label: edge.label }),
       type: edge.type ?? 'smoothstep',
       animated: edge.animated ?? false,
-      markerEnd: edge.markerEnd === 'arrow' ? 'url(#arrow)' : undefined,
+      ...(edge.markerEnd === 'arrow' && { markerEnd: 'url(#arrow)' }),
       data: {
-        label: edge.label,
+        ...(edge.label !== undefined && { label: edge.label }),
         status: edge.status ?? 'default',
         ...(edge.metadata ? { metadata: edge.metadata } : {}),
       },
-      className: edge.className,
     };
   });
 
@@ -133,7 +140,6 @@ export function simpleHorizontalLayout(doc: ArchitectureDocument): NormalizedGra
     layerMap.set(layer, arr);
   }
 
-  const maxLayer = Math.max(...layerMap.keys(), 0);
   const positions = new Map<string, { x: number; y: number }>();
 
   // Position nodes: layer determines x, index within layer determines y

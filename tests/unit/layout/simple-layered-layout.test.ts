@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { simpleHorizontalLayout, simpleVerticalLayout } from '../../../src/layout/simple-layered-layout.js';
+import {
+  simpleHorizontalLayout,
+  simpleVerticalLayout,
+} from '../../../src/layout/simple-layered-layout.js';
 import type { ArchitectureDocument } from '../../../src/schema/architecture-document.js';
 
 const LINEAR_DOC: ArchitectureDocument = {
@@ -18,18 +21,18 @@ const LINEAR_DOC: ArchitectureDocument = {
 describe('simple-layered-layout', () => {
   it('places nodes in layers horizontally', () => {
     const result = simpleHorizontalLayout(LINEAR_DOC);
-    const ids = result.nodes.map(n => n.id);
+    const ids = result.nodes.map((n) => n.id);
     expect(ids).toEqual(['a', 'b', 'c']);
     // a should be leftmost
-    const aNode = result.nodes.find(n => n.id === 'a')!;
-    const bNode = result.nodes.find(n => n.id === 'b')!;
+    const aNode = result.nodes.find((n) => n.id === 'a')!;
+    const bNode = result.nodes.find((n) => n.id === 'b')!;
     expect(aNode.position.x).toBeLessThan(bNode.position.x);
   });
 
   it('places nodes in layers vertically', () => {
     const result = simpleVerticalLayout(LINEAR_DOC);
-    const aNode = result.nodes.find(n => n.id === 'a')!;
-    const bNode = result.nodes.find(n => n.id === 'b')!;
+    const aNode = result.nodes.find((n) => n.id === 'a')!;
+    const bNode = result.nodes.find((n) => n.id === 'b')!;
     expect(aNode.position.y).toBeLessThan(bNode.position.y);
   });
 

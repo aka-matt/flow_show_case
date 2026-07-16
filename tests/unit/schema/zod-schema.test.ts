@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { architectureDocumentSchema, validateArchitectureDocument } from '../../../src/schema/zod-schema.js';
+import { validateArchitectureDocument } from '../../../src/schema/zod-schema.js';
 
 const VALID_DOC = {
   schemaVersion: '1.0',

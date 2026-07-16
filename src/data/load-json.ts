@@ -12,10 +12,7 @@ export interface LoadError {
   error?: Error;
 }
 
-export async function fetchJson(
-  url: string,
-  signal: AbortSignal
-): Promise<ArchitectureDocument> {
+export async function fetchJson(url: string, signal: AbortSignal): Promise<ArchitectureDocument> {
   const response = await fetch(url, {
     signal,
     credentials: 'same-origin',
@@ -29,7 +26,7 @@ export async function fetchJson(
   let raw: unknown;
   try {
     raw = await response.json();
-  } catch (err) {
+  } catch {
     throw new Error('Invalid JSON response');
   }
 

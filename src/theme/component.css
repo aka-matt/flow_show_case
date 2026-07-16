@@ -8,7 +8,9 @@
   max-width: 240px;
   font-family: var(--af-font-family);
   color: var(--af-color-text);
-  transition: box-shadow 0.2s, border-color 0.2s;
+  transition:
+    box-shadow 0.2s,
+    border-color 0.2s;
 }
 
 .af-node:hover {
@@ -63,11 +65,21 @@
   vertical-align: middle;
 }
 
-.af-status-dot--healthy { background: var(--af-color-success); }
-.af-status-dot--warning { background: var(--af-color-warning); }
-.af-status-dot--error { background: var(--af-color-danger); }
-.af-status-dot--disabled { background: var(--af-color-disabled); }
-.af-status-dot--default { background: var(--af-color-primary); }
+.af-status-dot--healthy {
+  background: var(--af-color-success);
+}
+.af-status-dot--warning {
+  background: var(--af-color-warning);
+}
+.af-status-dot--error {
+  background: var(--af-color-danger);
+}
+.af-status-dot--disabled {
+  background: var(--af-color-disabled);
+}
+.af-status-dot--default {
+  background: var(--af-color-primary);
+}
 
 .af-handle {
   width: 10px !important;

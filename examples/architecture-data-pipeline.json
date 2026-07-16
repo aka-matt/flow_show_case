@@ -25,9 +25,7 @@
       "subtitle": "REST endpoints",
       "position": { "x": 50, "y": 60 },
       "status": "healthy",
-      "ports": [
-        { "id": "out", "type": "source", "side": "right", "label": "JSON" }
-      ]
+      "ports": [{ "id": "out", "type": "source", "side": "right", "label": "JSON" }]
     },
     {
       "id": "db-source",
@@ -36,9 +34,7 @@
       "subtitle": "PostgreSQL",
       "position": { "x": 50, "y": 180 },
       "status": "healthy",
-      "ports": [
-        { "id": "out", "type": "source", "side": "right", "label": "WAL" }
-      ]
+      "ports": [{ "id": "out", "type": "source", "side": "right", "label": "WAL" }]
     },
     {
       "id": "file-source",
@@ -47,9 +43,7 @@
       "subtitle": "S3 / GCS",
       "position": { "x": 50, "y": 300 },
       "status": "healthy",
-      "ports": [
-        { "id": "out", "type": "source", "side": "right", "label": "Files" }
-      ]
+      "ports": [{ "id": "out", "type": "source", "side": "right", "label": "Files" }]
     },
     {
       "id": "stream-source",
@@ -58,9 +52,7 @@
       "subtitle": "Kafka",
       "position": { "x": 50, "y": 420 },
       "status": "healthy",
-      "ports": [
-        { "id": "out", "type": "source", "side": "right", "label": "Events" }
-      ]
+      "ports": [{ "id": "out", "type": "source", "side": "right", "label": "Events" }]
     },
     {
       "id": "message-queue",
@@ -91,9 +83,7 @@
       "title": "Raw Storage",
       "subtitle": "Data Lake S3",
       "position": { "x": 880, "y": 120 },
-      "ports": [
-        { "id": "in", "type": "target", "side": "left" }
-      ]
+      "ports": [{ "id": "in", "type": "target", "side": "left" }]
     },
     {
       "id": "enriched-storage",
@@ -101,9 +91,7 @@
       "title": "Enriched Storage",
       "subtitle": "Data Warehouse",
       "position": { "x": 880, "y": 360 },
-      "ports": [
-        { "id": "in", "type": "target", "side": "left" }
-      ]
+      "ports": [{ "id": "in", "type": "target", "side": "left" }]
     },
     {
       "id": "batch-processor",
@@ -122,9 +110,7 @@
       "title": "Analytics DB",
       "subtitle": "ClickHouse",
       "position": { "x": 880, "y": 520 },
-      "ports": [
-        { "id": "in", "type": "target", "side": "left" }
-      ]
+      "ports": [{ "id": "in", "type": "target", "side": "left" }]
     },
     {
       "id": "ml-pipeline",
@@ -144,9 +130,7 @@
       "title": "Model Registry",
       "subtitle": "MLflow",
       "position": { "x": 880, "y": 520 },
-      "ports": [
-        { "id": "in", "type": "target", "side": "left" }
-      ]
+      "ports": [{ "id": "in", "type": "target", "side": "left" }]
     }
   ],
   "edges": [

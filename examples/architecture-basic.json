@@ -17,9 +17,7 @@
       "subtitle": "React SPA",
       "position": { "x": 0, "y": 120 },
       "status": "healthy",
-      "ports": [
-        { "id": "https", "type": "source", "side": "right", "label": "HTTPS" }
-      ]
+      "ports": [{ "id": "https", "type": "source", "side": "right", "label": "HTTPS" }]
     },
     {
       "id": "gateway",
@@ -54,9 +52,7 @@
       "title": "Orders DB",
       "subtitle": "PostgreSQL",
       "position": { "x": 920, "y": 20 },
-      "ports": [
-        { "id": "sql", "type": "target", "side": "left" }
-      ]
+      "ports": [{ "id": "sql", "type": "target", "side": "left" }]
     },
     {
       "id": "event-bus",
@@ -64,9 +60,7 @@
       "title": "Event Bus",
       "subtitle": "Kafka",
       "position": { "x": 920, "y": 210 },
-      "ports": [
-        { "id": "produce", "type": "target", "side": "left" }
-      ]
+      "ports": [{ "id": "produce", "type": "target", "side": "left" }]
     }
   ],
   "edges": [

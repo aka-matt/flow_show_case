@@ -18,7 +18,7 @@ export const architecturePortSchema = z.object({
 export const architectureNodeSchema = z.object({
   id: z.string().min(1, 'Node id cannot be empty'),
   type: z.enum(NODE_TYPES).optional(),
-  title: z.string(),
+  title: z.string().optional(),
   subtitle: z.string().optional(),
   description: z.string().optional(),
   position: z.object({ x: z.number(), y: z.number() }).optional(),
@@ -59,28 +59,30 @@ export const architectureOptionsSchema = z.object({
   maxZoom: z.number().optional(),
 });
 
-export const architectureDocumentSchema = z.object({
-  schemaVersion: z.literal('1.0'),
-  title: z.string().optional(),
-  description: z.string().optional(),
-  options: architectureOptionsSchema.optional(),
-  nodes: z.array(architectureNodeSchema).min(0),
-  edges: z.array(architectureEdgeSchema).min(0),
-}).superRefine((data, ctx) => {
-  const ids = data.nodes.map(n => n.id);
-  const seen = new Set<string>();
-  for (const id of ids) {
-    if (seen.has(id)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `Duplicate node id: ${id}`,
-        path: ['nodes', ids.indexOf(id), 'id'],
-      });
-      return;
+export const architectureDocumentSchema = z
+  .object({
+    schemaVersion: z.literal('1.0'),
+    title: z.string().optional(),
+    description: z.string().optional(),
+    options: architectureOptionsSchema.optional(),
+    nodes: z.array(architectureNodeSchema).min(0),
+    edges: z.array(architectureEdgeSchema).min(0),
+  })
+  .superRefine((data, ctx) => {
+    const ids = data.nodes.map((n) => n.id);
+    const seen = new Set<string>();
+    for (const id of ids) {
+      if (seen.has(id)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Duplicate node id: ${id}`,
+          path: ['nodes', ids.indexOf(id), 'id'],
+        });
+        return;
+      }
+      seen.add(id);
     }
-    seen.add(id);
-  }
-});
+  });
 
 export type ValidationResult =
   | { success: true; data: import('./architecture-document.js').ArchitectureDocument }
@@ -92,22 +94,32 @@ export interface ZodErrorDetails {
   path?: string;
 }
 
-export function validateArchitectureDocument(
-  raw: unknown
-): ValidationResult {
+export function validateArchitectureDocument(raw: unknown): ValidationResult {
   const result = architectureDocumentSchema.safeParse(raw);
   if (result.success) {
-    return { success: true, data: result.data };
+    return {
+      success: true,
+      data: result.data as import('./architecture-document.js').ArchitectureDocument,
+    };
   }
 
   const firstError = result.error.errors[0];
-  const path = firstError.path.length > 0 ? `${firstError.path.join('.')}` : undefined;
+  if (!firstError) {
+    return {
+      success: false,
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: 'Unknown validation error',
+      },
+    };
+  }
+  const pathStr = firstError.path.length > 0 ? `${firstError.path.join('.')}` : undefined;
   return {
     success: false,
     error: {
       code: 'VALIDATION_ERROR',
       message: firstError.message,
-      path,
+      ...(pathStr !== undefined && { path: pathStr }),
     },
   };
 }
