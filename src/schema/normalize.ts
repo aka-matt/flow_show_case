@@ -5,7 +5,10 @@ import type {
   NormalizedNode,
   NormalizedEdge,
   NormalizedGraph,
+  LayoutType,
 } from './architecture-document.js';
+import { applyManualLayout } from '../layout/manual-layout.js';
+import { simpleHorizontalLayout, simpleVerticalLayout } from '../layout/simple-layered-layout.js';
 
 /**
  * Maps our node type strings to React Flow node type strings.
@@ -93,8 +96,25 @@ export function normalizeEdges(doc: ArchitectureDocument): NormalizedEdge[] {
 }
 
 export function normalize(doc: ArchitectureDocument): NormalizedGraph {
-  return {
+  const layout = doc.options?.layout;
+
+  if (layout === 'simple-horizontal') {
+    return simpleHorizontalLayout(doc);
+  }
+
+  if (layout === 'simple-vertical') {
+    return simpleVerticalLayout(doc);
+  }
+
+  // Default: normalize nodes and edges, then apply manual layout if positions are present
+  const graph: NormalizedGraph = {
     nodes: normalizeNodes(doc),
     edges: normalizeEdges(doc),
   };
+
+  if (layout === 'manual') {
+    return applyManualLayout(doc, graph);
+  }
+
+  return graph;
 }
