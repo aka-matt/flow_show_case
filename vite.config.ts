@@ -6,7 +6,7 @@ import { resolve } from 'path';
 export default defineConfig({
   plugins: [
     replace({
-      preventAssignment: true,
+      'preventAssignment': true,
       'process.env.NODE_ENV': JSON.stringify('production'),
     }),
     react(),
