@@ -1,9 +1,15 @@
-import React from 'react';
-import { type Node, type Edge } from '@xyflow/react';
+import React, { useRef } from 'react';
+import { FlowCanvas } from './FlowCanvas.js';
+import { ErrorView } from './ErrorView.js';
+import { LoadingView } from './LoadingView.js';
+import { EmptyView } from './EmptyView.js';
+import type { Node, Edge } from '@xyflow/react';
+
+type AppState = 'loading' | 'loaded' | 'error' | 'empty';
 
 interface ArchitectureFlowAppProps {
-  nodes: Node[];
-  edges: Edge[];
+  nodes: unknown[];
+  edges: unknown[];
   options?: {
     interactive?: boolean;
     fitView?: boolean;
@@ -11,18 +17,52 @@ interface ArchitectureFlowAppProps {
     showBackground?: boolean;
     showMiniMap?: boolean;
   };
+  state?: AppState;
+  errorMessage?: string;
+  loadingText?: string;
+  emptyText?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onNodeClick?: (event: MouseEvent, node: Node) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onEdgeClick?: (event: MouseEvent, edge: Edge) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onMoveEnd?: (event: MouseEvent, viewport: { x: number; y: number; zoom: number }) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onInit?: (instance: unknown) => void;
 }
 
-export function ArchitectureFlowApp({ nodes, edges, options }: ArchitectureFlowAppProps): React.ReactElement {
-  return (
-    <div style={{ width: '100%', height: '100%' }}>
-      {options
-        ? <FlowCanvas nodes={nodes} edges={edges} options={options} />
-        : <FlowCanvas nodes={nodes} edges={edges} />
-      }
-    </div>
-  );
-}
+export function ArchitectureFlowApp({
+  nodes,
+  edges,
+  options,
+  state = 'loaded',
+  errorMessage,
+  loadingText,
+  emptyText,
+  onNodeClick,
+  onEdgeClick,
+  onMoveEnd,
+  onInit,
+}: ArchitectureFlowAppProps): React.ReactElement {
+  const containerRef = useRef<HTMLDivElement>(null);
 
-// Lazy import to avoid circular deps
-import { FlowCanvas } from './FlowCanvas.js';
+  switch (state) {
+    case 'loading':
+      return React.createElement(LoadingView, { text: loadingText });
+    case 'error':
+      return React.createElement(ErrorView, { message: errorMessage });
+    case 'empty':
+      return React.createElement(EmptyView, { text: emptyText });
+    default:
+      return React.createElement(FlowCanvas, {
+        nodes: nodes as Node[],
+        edges: edges as Edge[],
+        options,
+        onNodeClick,
+        onEdgeClick,
+        onMoveEnd,
+        onInit,
+        containerRef,
+      });
+  }
+}

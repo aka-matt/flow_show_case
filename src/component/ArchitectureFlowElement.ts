@@ -7,9 +7,21 @@ import { fetchJson, parseInlineJson } from '../data/load-json.js';
 import { validateArchitectureDocument } from '../schema/zod-schema.js';
 import { normalize } from '../schema/normalize.js';
 import type { ArchitectureDocument } from '../schema/architecture-document.js';
-import { EVENT_FLOW_LOADING, EVENT_FLOW_LOADED, EVENT_FLOW_ERROR, EVENT_THEME_CHANGE, emitCustomEvent } from './events.js';
+import {
+  EVENT_FLOW_LOADING,
+  EVENT_FLOW_LOADED,
+  EVENT_FLOW_ERROR,
+  EVENT_THEME_CHANGE,
+  EVENT_NODE_CLICK,
+  EVENT_EDGE_CLICK,
+  EVENT_VIEWPORT_CHANGE,
+  EVENT_DATA_CHANGE,
+  EVENT_FLOW_READY,
+  emitCustomEvent,
+} from './events.js';
 import { getPalette, resolveTheme, buildCssVariables } from '../theme/index.js';
 import type { PaletteName, ResolvedTheme } from '../theme/index.js';
+import { debounce } from '../utils/debounce.js';
 
 export class ArchitectureFlowElement extends HTMLElement {
   private _root: Root | null = null;
@@ -18,6 +30,7 @@ export class ArchitectureFlowElement extends HTMLElement {
   private _currentSrc: string | null = null;
   private _mediaQuery: MediaQueryList | null = null;
   private _resolvedTheme: 'light' | 'dark' = 'light';
+  private _rfInstance: unknown = null;
 
   private _data: ArchitectureDocument | null = null;
   private _theme: 'light' | 'dark' | 'system' = 'system';
@@ -31,6 +44,13 @@ export class ArchitectureFlowElement extends HTMLElement {
   private _emptyText: string = 'No architecture data';
   private _ariaLabel: string = 'Architecture diagram';
   private _isLoading: boolean = false;
+  private _appState: 'loading' | 'loaded' | 'error' | 'empty' = 'loaded';
+  private _errorMessage: string = '';
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private _onViewportChange = debounce((x: number, y: number, zoom: number) => {
+    emitCustomEvent(this, EVENT_VIEWPORT_CHANGE, { x, y, zoom });
+  }, 100);
 
   constructor() {
     super();
@@ -91,25 +111,30 @@ export class ArchitectureFlowElement extends HTMLElement {
   private _readonly: boolean = true;
 
   // Public methods
-  fitViewAsync(_options?: unknown): Promise<void> {
-    // Stub — implemented in Phase 6
+  fitViewAsync(options?: { padding?: number; duration?: number }): Promise<void> {
+    const padding = options?.padding ?? 0.2;
+    if (this._rfInstance && typeof (this._rfInstance as Record<string, unknown>).fitView === 'function') {
+      return (this._rfInstance as Record<string, (opts: unknown) => Promise<void>>).fitView({ padding, duration: options?.duration });
+    }
     return Promise.resolve();
   }
 
-  getData(): unknown { return this._data; }
-
-  setData(data: unknown): void {
-    this.data = data;
-  }
-
   reload(): Promise<void> {
+    this._data = null;
     this._currentSrc = null;
     return this._loadData();
   }
 
   resetViewport(): Promise<void> {
-    // Stub — implemented in Phase 6
-    return Promise.resolve();
+    return this.fitViewAsync();
+  }
+
+  getData(): unknown {
+    return this._data;
+  }
+
+  setData(data: unknown): void {
+    this.data = data;
   }
 
   connectedCallback(): void {
@@ -224,6 +249,7 @@ export class ArchitectureFlowElement extends HTMLElement {
     this._abortRef?.abort();
     this._abortRef = createAbortController();
     this._setLoading(true);
+    this._setAppState('loading');
 
     emitCustomEvent(this, EVENT_FLOW_LOADING, { src });
 
@@ -232,6 +258,7 @@ export class ArchitectureFlowElement extends HTMLElement {
       this._data = data;
       this._renderGraph(data);
       emitCustomEvent(this, EVENT_FLOW_LOADED, { source: 'src', data });
+      this._setAppState('loaded');
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       emitCustomEvent(this, EVENT_FLOW_ERROR, {
@@ -239,6 +266,8 @@ export class ArchitectureFlowElement extends HTMLElement {
         message,
         error: err instanceof Error ? err : undefined,
       });
+      this._setAppState('error');
+      this._setErrorMessage(message);
       this._renderError(message);
     } finally {
       this._setLoading(false);
@@ -279,11 +308,13 @@ export class ArchitectureFlowElement extends HTMLElement {
       return;
     }
     this._data = validated.data;
+    emitCustomEvent(this, EVENT_DATA_CHANGE, { data: validated.data });
     this._renderGraph(validated.data);
   }
 
   private _renderGraph(doc: ArchitectureDocument): void {
     const graph = normalize(doc);
+    this._setAppState('loaded');
     this._renderReact(graph.nodes, graph.edges, doc.options);
   }
 
@@ -302,20 +333,47 @@ export class ArchitectureFlowElement extends HTMLElement {
           showMiniMap: this._showMiniMap,
           ...(options as Record<string, unknown>),
         },
+        state: this._appState,
+        errorMessage: this._errorMessage,
+        loadingText: this._loadingText,
+        emptyText: this._emptyText,
+        onNodeClick: (_event: MouseEvent, node: unknown) => {
+          emitCustomEvent(this, EVENT_NODE_CLICK, { node, originalEvent: _event });
+        },
+        onEdgeClick: (_event: MouseEvent, edge: unknown) => {
+          emitCustomEvent(this, EVENT_EDGE_CLICK, { edge, originalEvent: _event });
+        },
+        onMoveEnd: (_event: MouseEvent, viewport: { x: number; y: number; zoom: number }) => {
+          this._onViewportChange(viewport.x, viewport.y, viewport.zoom);
+        },
+        onInit: (instance: unknown) => {
+          this._rfInstance = instance;
+          emitCustomEvent(this, EVENT_FLOW_READY, { instance, data: this._data });
+        },
       })
     );
   }
 
   private _renderEmpty(): void {
+    this._setAppState('empty');
     this._renderReact([], []);
   }
 
   private _renderError(_message: string): void {
+    this._setAppState('error');
     this._renderReact([], []);
   }
 
   private _setLoading(val: boolean): void {
     this._isLoading = val;
+  }
+
+  private _setAppState(state: 'loading' | 'loaded' | 'error' | 'empty'): void {
+    this._appState = state;
+  }
+
+  private _setErrorMessage(message: string): void {
+    this._errorMessage = message;
   }
 
   private _setupSystemThemeListener(): void {
