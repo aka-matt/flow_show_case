@@ -7,7 +7,9 @@ import { fetchJson, parseInlineJson } from '../data/load-json.js';
 import { validateArchitectureDocument } from '../schema/zod-schema.js';
 import { normalize } from '../schema/normalize.js';
 import type { ArchitectureDocument } from '../schema/architecture-document.js';
-import { EVENT_FLOW_LOADING, EVENT_FLOW_LOADED, EVENT_FLOW_ERROR, emitCustomEvent } from './events.js';
+import { EVENT_FLOW_LOADING, EVENT_FLOW_LOADED, EVENT_FLOW_ERROR, EVENT_THEME_CHANGE, emitCustomEvent } from './events.js';
+import { getPalette, resolveTheme, buildCssVariables } from '../theme/index.js';
+import type { PaletteName, ResolvedTheme } from '../theme/index.js';
 
 export class ArchitectureFlowElement extends HTMLElement {
   private _root: Root | null = null;
@@ -143,10 +145,18 @@ export class ArchitectureFlowElement extends HTMLElement {
         this._theme = (newVal as 'light' | 'dark' | 'system') ?? 'system';
         this._resolveAndApplyTheme();
         break;
-      case 'palette':
-        this._palette = newVal ?? 'blue';
+      case 'palette': {
+        const valid = ['blue', 'indigo', 'teal', 'violet', 'slate', 'amber'];
+        this._palette = valid.includes(newVal ?? '') ? (newVal ?? 'blue') : 'blue';
+        if (!valid.includes(newVal ?? '')) {
+          emitCustomEvent(this, EVENT_FLOW_ERROR, {
+            code: 'UNKNOWN_PALETTE',
+            message: `Unknown palette "${newVal}", falling back to blue`,
+          });
+        }
         this._applyCssVariables();
         break;
+      }
       case 'height':
         this._updateHeight();
         break;
@@ -315,20 +325,51 @@ export class ArchitectureFlowElement extends HTMLElement {
   }
 
   private _onSystemThemeChange = (): void => {
-    this._resolveAndApplyTheme();
+    if (this._theme === 'system') {
+      this._resolveAndApplyTheme();
+      emitCustomEvent(this, EVENT_THEME_CHANGE, {
+        requestedTheme: this._theme,
+        resolvedTheme: this._resolvedTheme,
+        palette: this._palette,
+      });
+    }
   };
 
   private _resolveAndApplyTheme(): void {
-    const resolved = this._theme === 'system'
-      ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-      : this._theme;
+    const resolved = resolveTheme(this._theme);
     this._resolvedTheme = resolved;
     this.setAttribute('data-resolved-theme', resolved);
     this._applyCssVariables();
   }
 
   private _applyCssVariables(): void {
-    // Implemented in Phase 5
+    const paletteName = (this._palette as PaletteName) ?? 'blue';
+    const palette = getPalette(paletteName);
+    const resolved = this._resolvedTheme as ResolvedTheme;
+    const tokens = this._theme === 'dark'
+      ? palette.dark
+      : (this._theme === 'light' ? palette.light : (window.matchMedia('(prefers-color-scheme: dark)').matches ? palette.dark : palette.light));
+
+    // Override with host inline styles (CSS variables set on element.style)
+    const hostStyle = this.style;
+    const css = buildCssVariables(
+      {
+        ...tokens,
+        colorPrimary: String(hostStyle.getPropertyValue('--af-color-primary') || tokens.colorPrimary),
+        colorBg: String(hostStyle.getPropertyValue('--af-color-bg') || tokens.colorBg),
+        colorSurface: String(hostStyle.getPropertyValue('--af-color-surface') || tokens.colorSurface),
+      },
+      resolved
+    );
+
+    // Inject/update style tag in shadow root
+    let styleEl = this.shadowRoot?.querySelector('#af-tokens') as HTMLStyleElement | null;
+    if (!styleEl) {
+      styleEl = document.createElement('style');
+      styleEl.id = 'af-tokens';
+      this.shadowRoot?.appendChild(styleEl);
+    }
+    styleEl.textContent = `:host { ${css} }`;
   }
 
   private _updateHeight(): void {
