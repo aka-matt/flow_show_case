@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { type NodeProps } from '@xyflow/react';
 import { PortHandles, type PortDef } from './PortHandles.js';
+import { NodeIcon } from './NodeIcon.js';
 
 const STATUS_COLORS: Record<string, string> = {
   default: 'var(--af-color-primary)',
@@ -23,12 +24,9 @@ export const DatabaseNode = memo(function DatabaseNode({ data, selected }: NodeP
       aria-label={`Database: ${String(data['label'])}`}
     >
       <PortHandles ports={ports} />
-      <div
-        className="af-node__header"
-        style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}
-      >
+      <div className="af-node__header">
         <span className="af-status-dot" style={{ background: STATUS_COLORS[status] }} />
-        <span style={{ fontSize: 16, marginRight: 6 }}>&#9651;</span>
+        <NodeIcon type="database" color="var(--af-color-primary)" />
         <span className="af-node__title">{String(data['label'])}</span>
       </div>
       {!!data['subtitle'] && (

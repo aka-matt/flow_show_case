@@ -25,12 +25,29 @@
   outline-offset: 2px;
 }
 
+.af-node__header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+  min-width: 0;
+}
+
+.af-node__icon {
+  flex-shrink: 0;
+  margin-right: 6px;
+  display: block;
+}
+
 .af-node__title {
   font-size: 14px;
   font-weight: 600;
   color: var(--af-color-text);
-  margin: 0 0 4px 0;
+  margin: 0;
   line-height: 1.3;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .af-node__subtitle {
