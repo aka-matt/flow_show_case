@@ -580,10 +580,14 @@ export class ArchitectureFlowElement extends HTMLElement {
         width: 100%;
         min-width: 0;
         contain: layout style paint;
+        background: var(--af-color-bg, transparent);
+        color: var(--af-color-text, inherit);
       }
       .af-host {
         width: 100%;
         height: var(--af-height, 600px);
+        background: var(--af-color-bg, transparent);
+        color: var(--af-color-text, inherit);
       }
       ${COMBINED_CSS}
     `;

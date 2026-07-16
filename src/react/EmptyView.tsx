@@ -13,6 +13,7 @@ export function EmptyView({ text }: EmptyViewProps): React.ReactElement {
         alignItems: 'center',
         justifyContent: 'center',
         height: '100%',
+        background: 'var(--af-color-bg)',
         color: 'var(--af-color-text-muted)',
         fontFamily: 'var(--af-font-family)',
         gap: 8,

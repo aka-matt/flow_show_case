@@ -14,6 +14,7 @@ export function ErrorView({ message }: ErrorViewProps): React.ReactElement {
         alignItems: 'center',
         justifyContent: 'center',
         height: '100%',
+        background: 'var(--af-color-bg)',
         color: 'var(--af-color-danger)',
         fontFamily: 'var(--af-font-family)',
         gap: 12,

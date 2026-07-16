@@ -127,6 +127,90 @@
   stroke: var(--af-color-edge-active);
 }
 
+/*
+ * Canvas chrome must follow architecture-flow theme tokens.
+ * React Flow defaults to a light transparent canvas unless `.react-flow.dark`
+ * is set — we never add that class, so map XY tokens onto our palette instead.
+ */
+.react-flow {
+  --xy-background-color: var(--af-color-bg);
+  --xy-background-color-default: var(--af-color-bg);
+  --xy-background-pattern-dots-color: var(--af-color-grid);
+  --xy-background-pattern-dots-color-default: var(--af-color-grid);
+  --xy-background-pattern-lines-color: var(--af-color-grid);
+  --xy-background-pattern-lines-color-default: var(--af-color-grid);
+  --xy-background-pattern-cross-color: var(--af-color-grid);
+  --xy-background-pattern-cross-color-default: var(--af-color-grid);
+  --xy-controls-button-background-color: var(--af-color-surface);
+  --xy-controls-button-background-color-default: var(--af-color-surface);
+  --xy-controls-button-background-color-hover: var(--af-color-surface-elevated);
+  --xy-controls-button-background-color-hover-default: var(--af-color-surface-elevated);
+  --xy-controls-button-color: var(--af-color-text);
+  --xy-controls-button-color-default: var(--af-color-text);
+  --xy-controls-button-color-hover: var(--af-color-text);
+  --xy-controls-button-color-hover-default: var(--af-color-text);
+  --xy-controls-button-border-color: var(--af-color-border);
+  --xy-controls-button-border-color-default: var(--af-color-border);
+  --xy-controls-box-shadow: var(--af-shadow-node);
+  --xy-minimap-background-color: var(--af-color-surface);
+  --xy-minimap-background-color-default: var(--af-color-surface);
+  --xy-minimap-mask-background-color: color-mix(in srgb, var(--af-color-bg) 70%, transparent);
+  --xy-minimap-mask-background-color-default: color-mix(
+    in srgb,
+    var(--af-color-bg) 70%,
+    transparent
+  );
+  --xy-minimap-node-background-color: var(--af-color-primary-soft);
+  --xy-minimap-node-background-color-default: var(--af-color-primary-soft);
+  --xy-edge-label-background-color: var(--af-color-surface);
+  --xy-edge-label-background-color-default: var(--af-color-surface);
+  --xy-attribution-background-color: color-mix(in srgb, var(--af-color-surface) 80%, transparent);
+  --xy-attribution-background-color-default: color-mix(
+    in srgb,
+    var(--af-color-surface) 80%,
+    transparent
+  );
+  background-color: var(--af-color-bg);
+  color: var(--af-color-text);
+}
+
+.react-flow__background {
+  background-color: var(--af-color-bg) !important;
+}
+
+.react-flow__controls {
+  border: 1px solid var(--af-color-border);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: var(--af-shadow-node);
+}
+
+.react-flow__controls-button {
+  background: var(--af-color-surface) !important;
+  border-bottom-color: var(--af-color-border) !important;
+  fill: var(--af-color-text) !important;
+}
+
+.react-flow__controls-button:hover {
+  background: var(--af-color-surface-elevated) !important;
+}
+
+.react-flow__controls-button svg {
+  fill: currentColor;
+  color: var(--af-color-text);
+}
+
+.react-flow__minimap {
+  background: var(--af-color-surface) !important;
+  border: 1px solid var(--af-color-border);
+  border-radius: 6px;
+}
+
+.af-host {
+  background: var(--af-color-bg);
+  color: var(--af-color-text);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .af-node,
   .react-flow__edge-path {
