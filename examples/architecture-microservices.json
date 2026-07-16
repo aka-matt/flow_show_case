@@ -1,0 +1,271 @@
+{
+  "schemaVersion": "1.0",
+  "title": "Microservices Platform",
+  "options": {
+    "layout": "manual",
+    "fitView": true,
+    "interactive": true,
+    "showControls": true,
+    "showBackground": true,
+    "edgeAnimation": true
+  },
+  "nodes": [
+    {
+      "id": "cdn",
+      "type": "client",
+      "title": "CDN",
+      "subtitle": "Global delivery",
+      "position": { "x": 0, "y": 200 },
+      "status": "healthy",
+      "ports": [
+        { "id": "https", "type": "source", "side": "right", "label": "HTTPS" }
+      ]
+    },
+    {
+      "id": "lb",
+      "type": "service",
+      "title": "Load Balancer",
+      "subtitle": "NGINX",
+      "position": { "x": 220, "y": 200 },
+      "ports": [
+        { "id": "in", "type": "target", "side": "left" },
+        { "id": "out", "type": "source", "side": "right" }
+      ]
+    },
+    {
+      "id": "api-gateway",
+      "type": "service",
+      "title": "API Gateway",
+      "subtitle": "Kong",
+      "position": { "x": 440, "y": 200 },
+      "ports": [
+        { "id": "in", "type": "target", "side": "left" },
+        { "id": "user-svc", "type": "source", "side": "right", "offset": 20 },
+        { "id": "order-svc", "type": "source", "side": "right", "offset": 40 },
+        { "id": "product-svc", "type": "source", "side": "right", "offset": 60 },
+        { "id": "payment-svc", "type": "source", "side": "right", "offset": 80 }
+      ]
+    },
+    {
+      "id": "user-service",
+      "type": "service",
+      "title": "User Service",
+      "subtitle": "Node.js",
+      "position": { "x": 700, "y": 60 },
+      "ports": [
+        { "id": "api", "type": "target", "side": "left" },
+        { "id": "redis", "type": "source", "side": "right" },
+        { "id": "db", "type": "source", "side": "bottom" }
+      ]
+    },
+    {
+      "id": "order-service",
+      "type": "service",
+      "title": "Order Service",
+      "subtitle": "Go",
+      "position": { "x": 700, "y": 200 },
+      "ports": [
+        { "id": "api", "type": "target", "side": "left" },
+        { "id": "queue", "type": "source", "side": "right" }
+      ]
+    },
+    {
+      "id": "product-service",
+      "type": "service",
+      "title": "Product Service",
+      "subtitle": "Python",
+      "position": { "x": 700, "y": 340 },
+      "ports": [
+        { "id": "api", "type": "target", "side": "left" },
+        { "id": "cache", "type": "source", "side": "right" },
+        { "id": "db", "type": "source", "side": "bottom" }
+      ]
+    },
+    {
+      "id": "payment-service",
+      "type": "service",
+      "title": "Payment Service",
+      "subtitle": "Java",
+      "position": { "x": 700, "y": 480 },
+      "ports": [
+        { "id": "api", "type": "target", "side": "left" },
+        { "id": "external", "type": "source", "side": "right" }
+      ]
+    },
+    {
+      "id": "user-cache",
+      "type": "database",
+      "title": "User Cache",
+      "subtitle": "Redis",
+      "position": { "x": 950, "y": 60 },
+      "ports": [
+        { "id": "conn", "type": "target", "side": "left" }
+      ]
+    },
+    {
+      "id": "user-db",
+      "type": "database",
+      "title": "User DB",
+      "subtitle": "PostgreSQL",
+      "position": { "x": 950, "y": 120 },
+      "ports": [
+        { "id": "conn", "type": "target", "side": "left" }
+      ]
+    },
+    {
+      "id": "product-cache",
+      "type": "database",
+      "title": "Product Cache",
+      "subtitle": "Redis",
+      "position": { "x": 950, "y": 340 },
+      "ports": [
+        { "id": "conn", "type": "target", "side": "left" }
+      ]
+    },
+    {
+      "id": "product-db",
+      "type": "database",
+      "title": "Product DB",
+      "subtitle": "MongoDB",
+      "position": { "x": 950, "y": 400 },
+      "ports": [
+        { "id": "conn", "type": "target", "side": "left" }
+      ]
+    },
+    {
+      "id": "order-queue",
+      "type": "queue",
+      "title": "Order Queue",
+      "subtitle": "RabbitMQ",
+      "position": { "x": 950, "y": 200 },
+      "ports": [
+        { "id": "in", "type": "target", "side": "left" },
+        { "id": "out", "type": "source", "side": "right" }
+      ]
+    },
+    {
+      "id": "payment-gateway",
+      "type": "service",
+      "title": "Payment Gateway",
+      "subtitle": "Stripe API",
+      "position": { "x": 950, "y": 480 },
+      "ports": [
+        { "id": "in", "type": "target", "side": "left" }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "cdn-lb",
+      "source": "cdn",
+      "sourcePort": "https",
+      "target": "lb",
+      "targetPort": "in",
+      "label": "HTTP/S",
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "lb-gateway",
+      "source": "lb",
+      "sourcePort": "out",
+      "target": "api-gateway",
+      "targetPort": "in",
+      "label": "Proxy",
+      "animated": true,
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "gateway-user",
+      "source": "api-gateway",
+      "sourcePort": "user-svc",
+      "target": "user-service",
+      "targetPort": "api",
+      "label": "REST",
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "gateway-order",
+      "source": "api-gateway",
+      "sourcePort": "order-svc",
+      "target": "order-service",
+      "targetPort": "api",
+      "label": "REST",
+      "animated": true,
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "gateway-product",
+      "source": "api-gateway",
+      "sourcePort": "product-svc",
+      "target": "product-service",
+      "targetPort": "api",
+      "label": "REST",
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "gateway-payment",
+      "source": "api-gateway",
+      "sourcePort": "payment-svc",
+      "target": "payment-service",
+      "targetPort": "api",
+      "label": "REST",
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "user-redis",
+      "source": "user-service",
+      "sourcePort": "redis",
+      "target": "user-cache",
+      "targetPort": "conn",
+      "label": "GET/SET",
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "user-db",
+      "source": "user-service",
+      "sourcePort": "db",
+      "target": "user-db",
+      "targetPort": "conn",
+      "label": "SQL",
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "order-queue",
+      "source": "order-service",
+      "sourcePort": "queue",
+      "target": "order-queue",
+      "targetPort": "in",
+      "label": "Publish",
+      "animated": true,
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "product-cache",
+      "source": "product-service",
+      "sourcePort": "cache",
+      "target": "product-cache",
+      "targetPort": "conn",
+      "label": "GET/SET",
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "product-db",
+      "source": "product-service",
+      "sourcePort": "db",
+      "target": "product-db",
+      "targetPort": "conn",
+      "label": "Query",
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "payment-external",
+      "source": "payment-service",
+      "sourcePort": "external",
+      "target": "payment-gateway",
+      "targetPort": "in",
+      "label": "API",
+      "animated": true,
+      "markerEnd": "arrow"
+    }
+  ]
+}

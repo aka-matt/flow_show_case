@@ -1,0 +1,258 @@
+{
+  "schemaVersion": "1.0",
+  "title": "Data Pipeline Platform",
+  "options": {
+    "layout": "manual",
+    "fitView": true,
+    "interactive": true,
+    "showControls": true,
+    "showBackground": true,
+    "edgeAnimation": true
+  },
+  "nodes": [
+    {
+      "id": "data-sources",
+      "type": "group",
+      "title": "Data Sources",
+      "subtitle": "Ingestion layer",
+      "position": { "x": 0, "y": 0 },
+      "ports": []
+    },
+    {
+      "id": "api-source",
+      "type": "client",
+      "title": "API Source",
+      "subtitle": "REST endpoints",
+      "position": { "x": 50, "y": 60 },
+      "status": "healthy",
+      "ports": [
+        { "id": "out", "type": "source", "side": "right", "label": "JSON" }
+      ]
+    },
+    {
+      "id": "db-source",
+      "type": "database",
+      "title": "Database CDC",
+      "subtitle": "PostgreSQL",
+      "position": { "x": 50, "y": 180 },
+      "status": "healthy",
+      "ports": [
+        { "id": "out", "type": "source", "side": "right", "label": "WAL" }
+      ]
+    },
+    {
+      "id": "file-source",
+      "type": "service",
+      "title": "File Ingestion",
+      "subtitle": "S3 / GCS",
+      "position": { "x": 50, "y": 300 },
+      "status": "healthy",
+      "ports": [
+        { "id": "out", "type": "source", "side": "right", "label": "Files" }
+      ]
+    },
+    {
+      "id": "stream-source",
+      "type": "queue",
+      "title": "Stream Source",
+      "subtitle": "Kafka",
+      "position": { "x": 50, "y": 420 },
+      "status": "healthy",
+      "ports": [
+        { "id": "out", "type": "source", "side": "right", "label": "Events" }
+      ]
+    },
+    {
+      "id": "message-queue",
+      "type": "queue",
+      "title": "Message Queue",
+      "subtitle": "Apache Kafka",
+      "position": { "x": 350, "y": 240 },
+      "ports": [
+        { "id": "in", "type": "target", "side": "left" },
+        { "id": "out", "type": "source", "side": "right" }
+      ]
+    },
+    {
+      "id": "stream-processor",
+      "type": "service",
+      "title": "Stream Processor",
+      "subtitle": "Apache Flink",
+      "position": { "x": 600, "y": 240 },
+      "ports": [
+        { "id": "in", "type": "target", "side": "left" },
+        { "id": "raw", "type": "source", "side": "right", "offset": 25 },
+        { "id": "enriched", "type": "source", "side": "right", "offset": 75 }
+      ]
+    },
+    {
+      "id": "raw-storage",
+      "type": "database",
+      "title": "Raw Storage",
+      "subtitle": "Data Lake S3",
+      "position": { "x": 880, "y": 120 },
+      "ports": [
+        { "id": "in", "type": "target", "side": "left" }
+      ]
+    },
+    {
+      "id": "enriched-storage",
+      "type": "database",
+      "title": "Enriched Storage",
+      "subtitle": "Data Warehouse",
+      "position": { "x": 880, "y": 360 },
+      "ports": [
+        { "id": "in", "type": "target", "side": "left" }
+      ]
+    },
+    {
+      "id": "batch-processor",
+      "type": "service",
+      "title": "Batch Processor",
+      "subtitle": "Spark",
+      "position": { "x": 600, "y": 420 },
+      "ports": [
+        { "id": "in", "type": "target", "side": "left" },
+        { "id": "out", "type": "source", "side": "right" }
+      ]
+    },
+    {
+      "id": "analytics-db",
+      "type": "database",
+      "title": "Analytics DB",
+      "subtitle": "ClickHouse",
+      "position": { "x": 880, "y": 520 },
+      "ports": [
+        { "id": "in", "type": "target", "side": "left" }
+      ]
+    },
+    {
+      "id": "ml-pipeline",
+      "type": "service",
+      "title": "ML Pipeline",
+      "subtitle": "TensorFlow",
+      "position": { "x": 600, "y": 520 },
+      "status": "warning",
+      "ports": [
+        { "id": "in", "type": "target", "side": "left" },
+        { "id": "model", "type": "source", "side": "right" }
+      ]
+    },
+    {
+      "id": "model-registry",
+      "type": "database",
+      "title": "Model Registry",
+      "subtitle": "MLflow",
+      "position": { "x": 880, "y": 520 },
+      "ports": [
+        { "id": "in", "type": "target", "side": "left" }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "api-queue",
+      "source": "api-source",
+      "sourcePort": "out",
+      "target": "message-queue",
+      "targetPort": "in",
+      "label": "JSON events",
+      "animated": true,
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "db-cdc",
+      "source": "db-source",
+      "sourcePort": "out",
+      "target": "message-queue",
+      "targetPort": "in",
+      "label": "WAL stream",
+      "animated": true,
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "file-queue",
+      "source": "file-source",
+      "sourcePort": "out",
+      "target": "message-queue",
+      "targetPort": "in",
+      "label": "File events",
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "stream-queue",
+      "source": "stream-source",
+      "sourcePort": "out",
+      "target": "message-queue",
+      "targetPort": "in",
+      "label": "Kafka topics",
+      "animated": true,
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "queue-processor",
+      "source": "message-queue",
+      "sourcePort": "out",
+      "target": "stream-processor",
+      "targetPort": "in",
+      "label": "Real-time",
+      "animated": true,
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "processor-raw",
+      "source": "stream-processor",
+      "sourcePort": "raw",
+      "target": "raw-storage",
+      "targetPort": "in",
+      "label": "Raw data",
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "processor-enriched",
+      "source": "stream-processor",
+      "sourcePort": "enriched",
+      "target": "enriched-storage",
+      "targetPort": "in",
+      "label": "Enriched",
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "enriched-batch",
+      "source": "enriched-storage",
+      "sourcePort": "out",
+      "target": "batch-processor",
+      "targetPort": "in",
+      "label": "Periodic",
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "batch-analytics",
+      "source": "batch-processor",
+      "sourcePort": "out",
+      "target": "analytics-db",
+      "targetPort": "in",
+      "label": "Aggregates",
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "raw-ml",
+      "source": "raw-storage",
+      "sourcePort": "out",
+      "target": "ml-pipeline",
+      "targetPort": "in",
+      "label": "Training data",
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "ml-registry",
+      "source": "ml-pipeline",
+      "sourcePort": "model",
+      "target": "model-registry",
+      "targetPort": "in",
+      "label": "Model artifacts",
+      "animated": true,
+      "markerEnd": "arrow"
+    }
+  ]
+}

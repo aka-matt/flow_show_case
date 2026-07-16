@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "1.0",
+  "title": "Order Platform",
+  "options": {
+    "layout": "manual",
+    "fitView": true,
+    "interactive": true,
+    "showControls": true,
+    "showBackground": true,
+    "edgeAnimation": true
+  },
+  "nodes": [
+    {
+      "id": "web",
+      "type": "client",
+      "title": "Web Client",
+      "subtitle": "React SPA",
+      "position": { "x": 0, "y": 120 },
+      "status": "healthy",
+      "ports": [
+        { "id": "https", "type": "source", "side": "right", "label": "HTTPS" }
+      ]
+    },
+    {
+      "id": "gateway",
+      "type": "service",
+      "title": "API Gateway",
+      "subtitle": "Authentication and routing",
+      "position": { "x": 300, "y": 120 },
+      "ports": [
+        { "id": "public", "type": "target", "side": "left" },
+        { "id": "orders", "type": "source", "side": "right" }
+      ]
+    },
+    {
+      "id": "order-service",
+      "type": "service",
+      "title": "Order Service",
+      "subtitle": "Go service",
+      "position": { "x": 600, "y": 80 },
+      "ports": [
+        { "id": "api", "type": "target", "side": "left" },
+        { "id": "db", "type": "source", "side": "right", "offset": 35 },
+        { "id": "events", "type": "source", "side": "right", "offset": 70 }
+      ],
+      "metadata": {
+        "runtime": "Go",
+        "port": 8080
+      }
+    },
+    {
+      "id": "orders-db",
+      "type": "database",
+      "title": "Orders DB",
+      "subtitle": "PostgreSQL",
+      "position": { "x": 920, "y": 20 },
+      "ports": [
+        { "id": "sql", "type": "target", "side": "left" }
+      ]
+    },
+    {
+      "id": "event-bus",
+      "type": "queue",
+      "title": "Event Bus",
+      "subtitle": "Kafka",
+      "position": { "x": 920, "y": 210 },
+      "ports": [
+        { "id": "produce", "type": "target", "side": "left" }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "web-gateway",
+      "source": "web",
+      "sourcePort": "https",
+      "target": "gateway",
+      "targetPort": "public",
+      "label": "REST / HTTPS",
+      "animated": true,
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "gateway-orders",
+      "source": "gateway",
+      "sourcePort": "orders",
+      "target": "order-service",
+      "targetPort": "api",
+      "label": "Internal API",
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "orders-db",
+      "source": "order-service",
+      "sourcePort": "db",
+      "target": "orders-db",
+      "targetPort": "sql",
+      "label": "SQL",
+      "markerEnd": "arrow"
+    },
+    {
+      "id": "orders-events",
+      "source": "order-service",
+      "sourcePort": "events",
+      "target": "event-bus",
+      "targetPort": "produce",
+      "label": "Order events",
+      "animated": true,
+      "markerEnd": "arrow"
+    }
+  ]
+}
