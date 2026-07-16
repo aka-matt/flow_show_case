@@ -9,7 +9,6 @@ import {
   type Edge,
   type ReactFlowProps,
 } from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
 import { nodeTypes } from '../nodes/nodeTypes.js';
 import { edgeTypes } from '../edges/edgeTypes.js';
 
