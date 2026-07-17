@@ -36,22 +36,27 @@ describe('normalize', () => {
     expect(normalize(doc).nodes[0]!.position).toEqual({ x: 0, y: 0 });
   });
 
-  it('throws when edge source node missing', () => {
+  it('warns and skips edge when source node is missing', () => {
     const doc: ArchitectureDocument = {
       schemaVersion: '1.0',
       nodes: [{ id: 'a', title: 'A' }],
       edges: [{ id: 'e1', source: 'missing', target: 'a' }],
     };
-    expect(() => normalize(doc)).toThrow('missing node: missing');
+    const result = normalize(doc);
+    expect(result.warnings).toContainEqual(expect.stringContaining('missing node: missing'));
+    expect(result.edges.map((e) => e.id)).not.toContain('e1');
+    expect(result.nodes.map((n) => n.id)).toContain('a');
   });
 
-  it('throws when edge target node missing', () => {
+  it('warns and skips edge when target node is missing', () => {
     const doc: ArchitectureDocument = {
       schemaVersion: '1.0',
       nodes: [{ id: 'a', title: 'A' }],
       edges: [{ id: 'e1', source: 'a', target: 'missing' }],
     };
-    expect(() => normalize(doc)).toThrow('missing node: missing');
+    const result = normalize(doc);
+    expect(result.warnings).toContainEqual(expect.stringContaining('missing node: missing'));
+    expect(result.edges.map((e) => e.id)).not.toContain('e1');
   });
 
   it('passes port data through node data', () => {

@@ -60,18 +60,28 @@ export function normalizeNodes(doc: ArchitectureDocument): NormalizedNode[] {
   });
 }
 
-export function normalizeEdges(doc: ArchitectureDocument): NormalizedEdge[] {
+/**
+ * Normalizes edges, skipping any that reference missing nodes.
+ * Returns [normalized edges, list of warning messages for skipped edges].
+ */
+export function normalizeEdges(
+  doc: ArchitectureDocument,
+): { edges: NormalizedEdge[]; warnings: string[] } {
   const nodeIds = new Set(doc.nodes.map((n) => n.id));
+  const edges: NormalizedEdge[] = [];
+  const warnings: string[] = [];
 
-  return doc.edges.map((edge): NormalizedEdge => {
+  for (const edge of doc.edges) {
     if (!nodeIds.has(edge.source)) {
-      throw new Error(`edges[?].source references missing node: ${edge.source}`);
+      warnings.push(`edges[?].source references missing node: ${edge.source} (edge "${edge.id}" skipped)`);
+      continue;
     }
     if (!nodeIds.has(edge.target)) {
-      throw new Error(`edges[?].target references missing node: ${edge.target}`);
+      warnings.push(`edges[?].target references missing node: ${edge.target} (edge "${edge.id}" skipped)`);
+      continue;
     }
 
-    return {
+    edges.push({
       id: edge.id,
       source: edge.source,
       ...(edge.sourcePort !== undefined && { sourceHandle: edge.sourcePort }),
@@ -86,30 +96,39 @@ export function normalizeEdges(doc: ArchitectureDocument): NormalizedEdge[] {
         status: edge.status ?? 'default',
         ...(edge.metadata ? { metadata: edge.metadata } : {}),
       },
-    };
-  });
+    });
+  }
+
+  return { edges, warnings };
 }
 
-export function normalize(doc: ArchitectureDocument): NormalizedGraph {
+/** Graph result with optional validation warnings. */
+export interface NormalizedGraphResult extends NormalizedGraph {
+  warnings: string[];
+}
+
+export function normalize(doc: ArchitectureDocument): NormalizedGraphResult {
   const layout = doc.options?.layout;
 
   if (layout === 'simple-horizontal') {
-    return simpleHorizontalLayout(doc);
+    const g = simpleHorizontalLayout(doc);
+    return { ...g, warnings: [] };
   }
 
   if (layout === 'simple-vertical') {
-    return simpleVerticalLayout(doc);
+    const g = simpleVerticalLayout(doc);
+    return { ...g, warnings: [] };
   }
 
   // Default: normalize nodes and edges, then apply manual layout if positions are present
-  const graph: NormalizedGraph = {
-    nodes: normalizeNodes(doc),
-    edges: normalizeEdges(doc),
-  };
+  const nodes = normalizeNodes(doc);
+  const { edges, warnings } = normalizeEdges(doc);
+
+  const graph: NormalizedGraph = { nodes, edges };
 
   if (layout === 'manual') {
-    return applyManualLayout(doc, graph);
+    return { ...applyManualLayout(doc, graph), warnings };
   }
 
-  return graph;
+  return { ...graph, warnings };
 }

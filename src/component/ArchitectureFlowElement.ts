@@ -403,6 +403,7 @@ export class ArchitectureFlowElement extends HTMLElement {
         message,
         error: err instanceof Error ? err : undefined,
       });
+      // Return null so _loadData falls through to empty/error state
       return null;
     }
   }
@@ -433,6 +434,17 @@ export class ArchitectureFlowElement extends HTMLElement {
     this._lastEdges = graph.edges;
     this._lastDocOptions = doc.options;
     this._setAppState('loaded');
+    // Emit a flow-error for each normalize warning (e.g. missing node refs) but
+    // still render the valid part of the graph.
+    if (graph.warnings.length > 0) {
+      for (const msg of graph.warnings) {
+        emitCustomEvent(this, EVENT_FLOW_ERROR, {
+          code: 'VALIDATION_WARNING',
+          message: msg,
+        });
+      }
+      this._setErrorMessage(graph.warnings[0] ?? '');
+    }
     this._renderReact();
   }
 
