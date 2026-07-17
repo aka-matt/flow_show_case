@@ -362,7 +362,12 @@
         padding: 12px;
       }
 
-      /* Inline JSON demo specific styling */
+      /*
+       * Demo C: intentional host-page purple gradient behind the diagram.
+       * The component paints its own canvas with --af-color-bg (so dark theme
+       * works). To let this host gradient show through, Demo C also sets
+       * --af-color-bg: transparent on the <architecture-flow> host (see markup).
+       */
       .inline-json-demo .demo-component {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       }
@@ -480,17 +485,28 @@ flow.data = {
         </div>
         <div class="demo-card inline-json-demo">
           <pre class="demo-code">
-&lt;architecture-flow theme="light" palette="teal"&gt;
-  &lt;script type="application/json"&gt;
-    {
-      "schemaVersion": "1.0",
-      "nodes": [...],
-      "edges": [...]
-    }
-  &lt;/script&gt;
+/* Host page paints the purple gradient */
+.inline-json-demo .demo-component {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Transparent canvas so the host gradient shows through */
+&lt;architecture-flow
+  theme="light"
+  palette="teal"
+  style="--af-color-bg: transparent"
+&gt;
+  &lt;script type="application/json"&gt;{ ... }&lt;/script&gt;
 &lt;/architecture-flow&gt;</pre>
           <div class="demo-component">
-            <architecture-flow id="demo-c" theme="light" palette="teal" interactive fit-view>
+            <architecture-flow
+              id="demo-c"
+              theme="light"
+              palette="teal"
+              interactive
+              fit-view
+              style="--af-color-bg: transparent"
+            >
               <script type="application/json">
                 {
                   "schemaVersion": "1.0",
