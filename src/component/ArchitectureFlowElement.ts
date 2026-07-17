@@ -346,13 +346,19 @@ export class ArchitectureFlowElement extends HTMLElement {
     }
 
     // Priority 3: inline JSON
-    const inline = this._parseInlineJson();
-    if (inline) {
-      this._renderGraph(inline);
+    const inlineResult = this._parseInlineJson();
+    if (inlineResult.ok === true) {
+      this._renderGraph(inlineResult.data);
+      return;
+    }
+    if (inlineResult.ok === false && inlineResult.error) {
+      // Parse/validation failed for inline script — show error, not empty
+      this._setErrorMessage(inlineResult.error);
+      this._renderError(inlineResult.error);
       return;
     }
 
-    // Priority 4: empty state
+    // Priority 4: empty state (no data property, no src, no inline script)
     this._renderEmpty();
   }
 
@@ -369,9 +375,10 @@ export class ArchitectureFlowElement extends HTMLElement {
     try {
       const data = await fetchJson(src, this._abortRef.signal);
       this._data = data;
-      this._renderGraph(data);
-      emitCustomEvent(this, EVENT_FLOW_LOADED, { source: 'src', data });
-      this._setAppState('loaded');
+      const ok = this._renderGraph(data);
+      if (ok) {
+        emitCustomEvent(this, EVENT_FLOW_LOADED, { source: 'src', data });
+      }
     } catch (err) {
       // Clear _currentSrc so a later reload/retry can re-fetch this URL
       this._currentSrc = null;
@@ -389,13 +396,16 @@ export class ArchitectureFlowElement extends HTMLElement {
     }
   }
 
-  private _parseInlineJson(): ArchitectureDocument | null {
+  private _parseInlineJson():
+    | { ok: true; data: ArchitectureDocument }
+    | { ok: false; error: string }
+    | { ok: null } {
     const script = this.querySelector('script[type="application/json"]');
-    if (!script) return null;
+    if (!script) return { ok: null };
     try {
       const data = parseInlineJson(script.textContent ?? '');
       this._data = data;
-      return data;
+      return { ok: true, data };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       emitCustomEvent(this, EVENT_FLOW_ERROR, {
@@ -403,7 +413,7 @@ export class ArchitectureFlowElement extends HTMLElement {
         message,
         error: err instanceof Error ? err : undefined,
       });
-      return null;
+      return { ok: false, error: message };
     }
   }
 
@@ -427,13 +437,28 @@ export class ArchitectureFlowElement extends HTMLElement {
     this._renderGraph(validated.data);
   }
 
-  private _renderGraph(doc: ArchitectureDocument): void {
-    const graph = normalize(doc);
-    this._lastNodes = graph.nodes;
-    this._lastEdges = graph.edges;
-    this._lastDocOptions = doc.options;
-    this._setAppState('loaded');
-    this._renderReact();
+  /** Normalize and render. Returns false when normalize throws (ErrorView shown). */
+  private _renderGraph(doc: ArchitectureDocument): boolean {
+    try {
+      const graph = normalize(doc);
+      this._lastNodes = graph.nodes;
+      this._lastEdges = graph.edges;
+      this._lastDocOptions = doc.options;
+      this._setAppState('loaded');
+      this._renderReact();
+      return true;
+    } catch (err) {
+      // e.g. edge references a missing node — show ErrorView instead of blank canvas
+      const message = err instanceof Error ? err.message : String(err);
+      emitCustomEvent(this, EVENT_FLOW_ERROR, {
+        code: 'NORMALIZE_ERROR',
+        message,
+        error: err instanceof Error ? err : undefined,
+      });
+      this._setErrorMessage(message);
+      this._renderError(message);
+      return false;
+    }
   }
 
   /**
